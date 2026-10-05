@@ -102,10 +102,13 @@ for file in sorted(excel_files):
         player_picks = []
         for game in api_games:
             pick_abbr = None
+            pick_logo = None
             if game['home'] in user_picks:
                 pick_abbr = game['home']
+                pick_logo = game['home_logo']
             elif game['away'] in user_picks:
                 pick_abbr = game['away']
+                pick_logo = game['away_logo']
                 
             status_class = "pending"
             if game['state'] == 'post':
@@ -115,14 +118,11 @@ for file in sorted(excel_files):
                 elif pick_abbr is not None:
                     status_class = "loss"
                 else:
-                    status_class = "missing" # Treat missing picks as a loss (red) if game is over
+                    status_class = "missing"
                     
             player_picks.append({
-                "home": game['home'],
-                "away": game['away'],
-                "home_logo": game['home_logo'],
-                "away_logo": game['away_logo'],
                 "pick": pick_abbr,
+                "logo": pick_logo,
                 "status": status_class
             })
                     
@@ -130,56 +130,129 @@ for file in sorted(excel_files):
     
     # Sort leaderboard highest to lowest
     week_scores = sorted(week_scores, key=lambda x: x['Wins'], reverse=True)
-    all_results[f"Week {week_num}"] = week_scores
+    all_results[f"Week {week_num}"] = {
+        "games": api_games,
+        "scores": week_scores
+    }
 
 sorted_weeks = sorted(all_results.keys(), key=lambda x: int(x.replace("Week ", "")), reverse=True)
 
-# 3. Generate the Static HTML Dashboard with Expanding Accordions
-html_content = """<!DOCTYPE html>
+# Generate dropdown filter options
+dropdown_options = ""
+for w in sorted_weeks:
+    w_id = w.replace(" ", "-")
+    dropdown_options += f"<option value='{w_id}'>{w}</option>\n"
+dropdown_options += "<option value='all'>Show All Weeks</option>"
+
+# 3. Generate the Static HTML Dashboard
+html_content = f"""<!DOCTYPE html>
 <html>
 <head>
     <title>Office Pick'em Pool</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: -apple-system, sans-serif; margin: 0; padding: 15px; background-color: #f0f2f6; color: #31333F; }
-        h1 { text-align: center; padding-bottom: 10px; font-size: 1.6rem; }
+        body {{ font-family: -apple-system, sans-serif; margin: 0; padding: 15px; background-color: #f0f2f6; color: #31333F; }}
+        h1 {{ text-align: center; padding-bottom: 5px; font-size: 1.6rem; margin-bottom: 5px; }}
         
-        .warning-banner { background-color: #ffbd45; color: #000; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .warning-banner small { font-weight: normal; display: block; margin-top: 5px; }
+        .filter-container {{ text-align: center; margin-bottom: 20px; }}
+        select#week-filter {{ padding: 8px 16px; font-size: 1rem; border-radius: 8px; border: 1px solid #ccc; font-weight: bold; background: #fff; outline: none; }}
         
-        .week-container { margin-bottom: 30px; }
-        h2 { margin: 0 0 15px 0; color: #000; padding-bottom: 10px; border-bottom: 2px solid #ddd; }
+        .warning-banner {{ background-color: #ffbd45; color: #000; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+        .warning-banner small {{ font-weight: normal; display: block; margin-top: 5px; }}
         
-        /* Accordion (Details/Summary) Styling */
-        details.player-card { background: #fff; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
-        details.player-card summary { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; }
-        details.player-card summary::-webkit-details-marker { display: none; }
-        details.player-card summary:hover { background-color: #f8f9fa; }
-        details.player-card[open] summary { border-bottom: 1px solid #eee; background-color: #fafafa; }
+        .week-container {{ background: #ffffff; padding: 15px 0 0 0; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }}
         
-        /* Pick Grid */
-        .picks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; background: #fafafa; }
+        .week-header-bar {{ display: flex; justify-content: space-between; align-items: center; padding: 0 15px 10px 15px; border-bottom: 2px solid #f0f2f6; }}
+        .week-header-bar h2 {{ margin: 0; color: #000; font-size: 1.3rem; }}
+        .expand-btn {{ background: #e6f4ea; color: #137333; border: 1px solid #c3e6cb; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; outline: none; }}
+        .instruction-text {{ font-size: 0.8rem; color: #888; padding: 10px 15px; font-style: italic; }}
         
-        /* Individual Game Cards */
-        .pick-card { display: flex; flex-direction: column; align-items: center; padding: 10px; border-radius: 8px; border: 1px solid #ccc; text-align: center; }
-        .pick-card .logos { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-        .pick-card .logos img { width: 28px; height: 28px; object-fit: contain; }
-        .pick-card .teams { font-size: 0.8rem; color: #555; margin-bottom: 8px; font-weight: bold; }
-        .pick-card .pick-text { font-size: 0.9rem; font-weight: 900; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; }
+        /* Horizontal Scroll Framework */
+        .horizontal-scroll-area {{ overflow-x: auto; white-space: nowrap; padding-bottom: 15px; }}
         
-        /* Win / Loss / Pending Colors */
-        .pick-card.win { background-color: #e6f4ea; border-color: #137333; }
-        .pick-card.win .pick-text { color: #137333; }
+        /* Flex Rows */
+        .grid-row {{ display: flex; width: max-content; min-width: 100%; border-bottom: 1px solid #f0f2f6; cursor: pointer; background-color: #fff; transition: background-color 0.2s; }}
+        .grid-row:hover {{ background-color: #f8f9fa; }}
+        .header-row {{ background-color: #fafafa; cursor: default; border-bottom: 2px solid #e0e0e0; }}
+        .header-row:hover {{ background-color: #fafafa; }}
         
-        .pick-card.loss, .pick-card.missing { background-color: #fce8e6; border-color: #c5221f; }
-        .pick-card.loss .pick-text, .pick-card.missing .pick-text { color: #c5221f; }
+        /* Sticky Left Columns */
+        .locked-cols {{ position: sticky; left: 0; z-index: 2; display: flex; align-items: center; background-color: inherit; border-right: 2px solid #e0e0e0; }}
+        .col-name {{ width: 110px; padding: 12px 10px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+        .col-wins {{ width: 45px; padding: 12px 10px; font-weight: 900; font-size: 1.1rem; text-align: center; }}
+        .header-row .col-name, .header-row .col-wins {{ font-size: 0.8rem; color: #555; text-transform: uppercase; font-weight: normal; }}
         
-        .pick-card.pending { background-color: #fff; border-color: #dadce0; }
-        .pick-card.pending .pick-text { color: #5f6368; }
+        /* Scrolling Game Columns */
+        .scroll-cols {{ display: flex; align-items: center; }}
+        .player-row.collapsed .scroll-cols {{ display: none; }}
+        
+        .game-cell {{ width: 95px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }}
+        
+        /* Matchup Header Styling */
+        .matchup-logos {{ display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 4px; }}
+        .matchup-logos img {{ width: 24px; height: 24px; object-fit: contain; }}
+        .matchup-text {{ color: #555; font-size: 0.75rem; font-weight: bold; }}
+        
+        /* Pick Pill Styling */
+        .pick-box {{ display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; font-weight: 800; border-radius: 6px; padding: 6px 8px; width: 85px; box-sizing: border-box; }}
+        .pick-box img {{ width: 22px; height: 22px; object-fit: contain; border-radius: 4px; }}
+        
+        .pick-box.win {{ background-color: #e6f4ea; color: #137333; border: 1px solid #137333; }}
+        .pick-box.loss {{ background-color: #fce8e6; color: #c5221f; border: 1px solid #c5221f; }}
+        .pick-box.pending {{ background-color: #f1f3f4; color: #5f6368; border: 1px solid #dadce0; }}
+        .pick-box.missing {{ background-color: #ffffff; color: #ccc; border: 1px dashed #ccc; font-weight: normal; }}
     </style>
+    
+    <script>
+        function toggleRow(row) {{
+            row.classList.toggle('collapsed');
+        }}
+        
+        function toggleWeek(btn) {{
+            const container = btn.closest('.week-container');
+            const rows = container.querySelectorAll('.player-row');
+            const isExpanding = btn.innerText === "Expand All";
+            
+            rows.forEach(row => {{
+                if (isExpanding) {{
+                    row.classList.remove('collapsed');
+                }} else {{
+                    row.classList.add('collapsed');
+                }}
+            }});
+            
+            btn.innerText = isExpanding ? "Collapse All" : "Expand All";
+            btn.style.backgroundColor = isExpanding ? "#fce8e6" : "#e6f4ea";
+            btn.style.color = isExpanding ? "#c5221f" : "#137333";
+            btn.style.borderColor = isExpanding ? "#f5c6cb" : "#c3e6cb";
+        }}
+        
+        function filterWeek() {{
+            const selected = document.getElementById('week-filter').value;
+            const containers = document.querySelectorAll('.week-container');
+            
+            containers.forEach(container => {{
+                if (selected === 'all' || container.id === selected) {{
+                    container.style.display = 'block';
+                }} else {{
+                    container.style.display = 'none';
+                }}
+            }});
+        }}
+        
+        // Run the filter automatically on page load to hide older weeks
+        window.onload = function() {{
+            filterWeek();
+        }};
+    </script>
 </head>
 <body>
-    <h1>🏈 Office Pick'em Leaderboard</h1>
+    <h1>🏈 Office Pick'em</h1>
+    <div class="filter-container">
+        <select id="week-filter" onchange="filterWeek()">
+            {dropdown_options}
+        </select>
+    </div>
 """
 
 if warnings:
@@ -188,46 +261,86 @@ if warnings:
     html_content += "</div>"
 
 for week_key in sorted_weeks:
-    scores = all_results[week_key]
+    week_id = week_key.replace(" ", "-")
+    week_data = all_results[week_key]
+    api_games = week_data["games"]
+    scores = week_data["scores"]
     
-    html_content += f"<div class='week-container'><h2>{week_key}</h2>"
+    html_content += f"""
+    <div class='week-container' id="{week_id}">
+        <div class="week-header-bar">
+            <h2>{week_key}</h2>
+            <button class="expand-btn" onclick="toggleWeek(this)">Expand All</button>
+        </div>
+        <div class="instruction-text">Tap any player's row to view their picks. Scroll right to see all games.</div>
+        <div class="horizontal-scroll-area">
+            
+            <!-- Header Row with Matchups -->
+            <div class="grid-row header-row">
+                <div class="locked-cols">
+                    <div class="col-name">Player</div>
+                    <div class="col-wins">Wins</div>
+                </div>
+                <div class="scroll-cols">
+    """
     
+    for g in api_games:
+        html_content += f"""
+                    <div class="game-cell">
+                        <div class="matchup-logos">
+                            <img src="{g['away_logo']}" title="{g['away']}"> 
+                            <span style="color: #888; font-size: 0.7rem;">@</span> 
+                            <img src="{g['home_logo']}" title="{g['home']}">
+                        </div>
+                        <div class="matchup-text">{g['away']} @ {g['home']}</div>
+                    </div>
+        """
+        
+    html_content += """
+                </div>
+            </div>
+    """
+    
+    # Player Rows (Collapsed by default)
     for s in scores:
         html_content += f"""
-        <details class="player-card">
-            <summary>
-                <span style="font-size: 1.1rem; color: #333;">{s['Player']}</span>
-                <span style="font-size: 1.1rem; color: #000;">{s['Wins']} Wins</span>
-            </summary>
-            <div class="picks-grid">
+            <div class="grid-row player-row collapsed" onclick="toggleRow(this)">
+                <div class="locked-cols">
+                    <div class="col-name">{s['Player']}</div>
+                    <div class="col-wins">{s['Wins']}</div>
+                </div>
+                <div class="scroll-cols">
         """
         
         for p in s['Picks']:
-            pick_text = f"Picked: {p['pick']}" if p['pick'] else "NO PICK"
-            status = p['status']
-            
-            html_content += f"""
-                <div class="pick-card {status}">
-                    <div class="logos">
-                        <img src="{p['away_logo']}" title="{p['away']}"> 
-                        <span style="font-size:0.8rem; color:#888;">@</span> 
-                        <img src="{p['home_logo']}" title="{p['home']}">
+            if p['pick']:
+                html_content += f"""
+                    <div class="game-cell">
+                        <div class="pick-box {p['status']}">
+                            <img src="{p['logo']}"> <span>{p['pick']}</span>
+                        </div>
                     </div>
-                    <div class="teams">{p['away']} @ {p['home']}</div>
-                    <div class="pick-text">{pick_text}</div>
-                </div>
-            """
-            
+                """
+            else:
+                html_content += """
+                    <div class="game-cell">
+                        <div class="pick-box missing">-</div>
+                    </div>
+                """
+                
         html_content += """
+                </div>
             </div>
-        </details>
         """
         
-    html_content += "</div>\n"
+    html_content += """
+        </div>
+    </div>
+    """
 
 html_content += "</body></html>"
 
 # Write the web page for GitHub Pages to host
 with open("index.html", "w") as f:
     f.write(html_content)
-        
+    
