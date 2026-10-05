@@ -23,15 +23,12 @@ team_aliases = {
     "Packers": "GB", "Panthers": "CAR", "Patriots": "NE", "Raiders": "LV",
     "Rams": "LAR", "Ravens": "BAL", "Saints": "NO", "Seahawks": "SEA",
     "Steelers": "PIT", "Texans": "HOU", "Titans": "TEN", "Vikings": "MIN",
-    
-    # Common Typos
     "Boncos": "DEN", "Commancers": "WAS", "Commanskins": "WAS", "Sehawks": "SEA"
 }
 
 warnings = []
 all_results = {}
 
-# Process every Excel file in the repository
 excel_files = glob.glob("NFL Week *.xlsx")
 for file in sorted(excel_files):
     week_str = file.replace("NFL Week ", "").replace(".xlsx", "")
@@ -41,15 +38,27 @@ for file in sorted(excel_files):
         continue
 
     df = pd.read_excel(file).dropna(how='all', axis=1)
-    tb_col = df.columns[-1] # The last column is always the Tie Breaker
     
-    # Fetch ESPN Data for this specific week
+    # Smart TB Column Finder (Ignores accidental blank columns)
+    tb_col = None
+    for c in df.columns:
+        cl = str(c).lower().strip()
+        if 'tb' in cl or 'tie' in cl or 'total' in cl or 'points' in cl:
+            tb_col = c
+            break
+    if tb_col is None and len(df.columns) > 0:
+        tb_col = df.columns[-1]
+    
+    # Fetch ESPN Data
     api_url = f"http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week={week_num}"
-    resp = requests.get(api_url)
-    api_data = resp.json() if resp.status_code == 200 else {}
+    try:
+        resp = requests.get(api_url)
+        api_data = resp.json() if resp.status_code == 200 else {}
+    except:
+        api_data = {}
+        
     expected_games = len(api_data.get('events', []))
     
-    # Process ESPN Matchups to build dynamic game cards
     api_games = []
     for event in api_data.get('events', []):
         comp = event['competitions'][0]
@@ -74,14 +83,11 @@ for file in sorted(excel_files):
             else: winner = "TIE"
             
         api_games.append({
-            "date": event['date'],
-            "home": home_abbr,
-            "away": away_abbr,
+            "date": event.get('date', ''),
+            "home": home_abbr, "away": away_abbr,
             "home_logo": f"https://a.espncdn.com/i/teamlogos/nfl/500/{home_raw.lower()}.png",
             "away_logo": f"https://a.espncdn.com/i/teamlogos/nfl/500/{away_raw.lower()}.png",
-            "state": state,
-            "winner": winner,
-            "total_score": s_home + s_away
+            "state": state, "winner": winner, "total_score": s_home + s_away
         })
         
     mapped_teams = [c for c in df.columns if str(c).strip() in team_aliases]
@@ -95,8 +101,7 @@ for file in sorted(excel_files):
         if pd.isna(player_name) or player_name.lower() in ['nan', 'tie breaker'] or player_name.lower().startswith('nfl week'):
             continue
             
-        # Extract their Tie Breaker Guess
-        tb_val = row[tb_col]
+        tb_val = row.get(tb_col, "N/A")
         if pd.notna(tb_val) and str(tb_val).strip() != '':
             try:
                 tb_val = float(tb_val)
@@ -135,30 +140,21 @@ for file in sorted(excel_files):
                     status_class = "missing"
                     
             player_picks.append({
-                "home": game['home'],
-                "away": game['away'],
-                "home_logo": game['home_logo'],
-                "away_logo": game['away_logo'],
-                "pick": pick_abbr,
-                "logo": pick_logo,
-                "status": status_class
+                "home": game['home'], "away": game['away'],
+                "home_logo": game['home_logo'], "away_logo": game['away_logo'],
+                "pick": pick_abbr, "logo": pick_logo, "status": status_class
             })
                     
         week_scores.append({"Player": player_name, "Wins": score, "TB": tb_val, "Picks": player_picks})
     
-    # Sort leaderboard highest to lowest
     week_scores = sorted(week_scores, key=lambda x: x['Wins'], reverse=True)
-    
-    # Calculate actual TB from the final chronological game
     last_api_game = sorted(api_games, key=lambda x: x['date'])[-1] if api_games else None
     actual_tb = last_api_game['total_score'] if last_api_game else 0
     all_games_final = all(g['state'] == 'post' for g in api_games) if api_games else False
     
     all_results[f"Week {week_num}"] = {
-        "games": api_games,
-        "scores": week_scores,
-        "actual_tb": actual_tb,
-        "all_final": all_games_final
+        "games": api_games, "scores": week_scores,
+        "actual_tb": actual_tb, "all_final": all_games_final
     }
 
 sorted_weeks = sorted(all_results.keys(), key=lambda x: int(x.replace("Week ", "")), reverse=True)
@@ -169,109 +165,99 @@ for w in sorted_weeks:
     dropdown_options += f"<option value='{w_id}'>{w}</option>\n"
 dropdown_options += "<option value='all'>Show All Weeks</option>"
 
-# 3. Generate the Static HTML Dashboard
-html_content = f"""<!DOCTYPE html>
+
+HTML_TEMPLATE = """<!DOCTYPE html>
 <html>
 <head>
     <title>Office Pick'em Pool</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body {{ font-family: -apple-system, sans-serif; margin: 0; padding: 15px; background-color: #f0f2f6; color: #31333F; }}
-        h1 {{ text-align: center; padding-bottom: 5px; font-size: 1.6rem; margin-bottom: 5px; }}
+        body { font-family: -apple-system, sans-serif; margin: 0; padding: 15px; background-color: #f0f2f6; color: #31333F; }
+        h1 { text-align: center; padding-bottom: 5px; font-size: 1.6rem; margin-bottom: 5px; }
         
-        .filter-container {{ text-align: center; margin-bottom: 20px; }}
-        select#week-filter {{ padding: 8px 16px; font-size: 1rem; border-radius: 8px; border: 1px solid #ccc; font-weight: bold; background: #fff; outline: none; }}
+        .filter-container { text-align: center; margin-bottom: 20px; }
+        select#week-filter { padding: 8px 16px; font-size: 1rem; border-radius: 8px; border: 1px solid #ccc; font-weight: bold; background: #fff; outline: none; }
         
-        .warning-banner {{ background-color: #ffbd45; color: #000; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
-        .warning-banner small {{ font-weight: normal; display: block; margin-top: 5px; }}
+        .warning-banner { background-color: #ffbd45; color: #000; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .warning-banner small { font-weight: normal; display: block; margin-top: 5px; }
         
-        .week-container {{ margin-bottom: 30px; }}
-        .week-header-bar {{ display: flex; justify-content: space-between; align-items: center; padding: 0 5px 10px 5px; border-bottom: 2px solid #ddd; margin-bottom: 15px; }}
-        .week-header-bar h2 {{ margin: 0; color: #000; font-size: 1.4rem; }}
-        .expand-btn {{ background: #e6f4ea; color: #137333; border: 1px solid #c3e6cb; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; outline: none; }}
+        .week-container { margin-bottom: 30px; }
+        .week-header-bar { display: flex; justify-content: space-between; align-items: center; padding: 0 5px 10px 5px; border-bottom: 2px solid #ddd; margin-bottom: 15px; }
+        .week-header-bar h2 { margin: 0; color: #000; font-size: 1.4rem; }
+        .expand-btn { background: #e6f4ea; color: #137333; border: 1px solid #c3e6cb; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; outline: none; }
         
-        /* ------------------------- */
-        /* WINNER BANNER             */
-        /* ------------------------- */
-        .winner-banner {{ background-color: #137333; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 0 0 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
-        .winner-banner.tie {{ background-color: #0d652d; }}
-        .winner-banner .title {{ font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; opacity: 0.9; }}
-        .winner-banner .players {{ font-size: 1.15rem; font-weight: 900; line-height: 1.4; }}
-        .winner-banner .players span {{ font-weight: normal; font-size: 0.95rem; opacity: 0.9; }}
-        .winner-banner small {{ display: block; margin-top: 8px; opacity: 0.9; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; }}
+        .winner-banner { background-color: #137333; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 0 0 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .winner-banner.tie { background-color: #0d652d; }
+        .winner-banner .title { font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; opacity: 0.9; }
+        .winner-banner .players { font-size: 1.15rem; font-weight: 900; line-height: 1.4; }
+        .winner-banner .players span { font-weight: normal; font-size: 0.95rem; opacity: 0.9; }
+        .winner-banner small { display: block; margin-top: 8px; opacity: 0.9; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; }
 
-        /* ------------------------- */
-        /* VIEW 1: ACCORDION LIST    */
-        /* ------------------------- */
-        details.player-card {{ background: #fff; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }}
-        details.player-card summary {{ padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; }}
-        details.player-card summary::-webkit-details-marker {{ display: none; }}
-        details.player-card summary:hover {{ background-color: #f8f9fa; }}
-        details.player-card[open] summary {{ border-bottom: 1px solid #eee; background-color: #fafafa; }}
+        details.player-card { background: #fff; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        details.player-card summary { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; }
+        details.player-card summary::-webkit-details-marker { display: none; }
+        details.player-card summary:hover { background-color: #f8f9fa; }
+        details.player-card[open] summary { border-bottom: 1px solid #eee; background-color: #fafafa; }
         
-        .picks-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; background: #fafafa; }}
+        .picks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; background: #fafafa; }
         
-        .acc-card {{ display: flex; flex-direction: column; align-items: center; padding: 10px; border-radius: 8px; border: 1px solid #ccc; text-align: center; background-color: #fff; }}
-        .acc-card .logos {{ display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }}
-        .acc-card .logos img {{ width: 28px; height: 28px; object-fit: contain; }}
-        .acc-card .teams {{ font-size: 0.8rem; color: #555; margin-bottom: 8px; font-weight: bold; }}
-        .acc-card .pick-text {{ font-size: 0.9rem; font-weight: 900; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; }}
+        .acc-card { display: flex; flex-direction: column; align-items: center; padding: 10px; border-radius: 8px; border: 1px solid #ccc; text-align: center; background-color: #fff; }
+        .acc-card .logos { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .acc-card .logos img { width: 28px; height: 28px; object-fit: contain; }
+        .acc-card .teams { font-size: 0.8rem; color: #555; margin-bottom: 8px; font-weight: bold; }
+        .acc-card .pick-text { font-size: 0.9rem; font-weight: 900; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; }
         
-        .acc-card.win {{ background-color: #e6f4ea; border-color: #137333; }}
-        .acc-card.win .pick-text {{ color: #137333; }}
-        .acc-card.loss, .acc-card.missing {{ background-color: #fce8e6; border-color: #c5221f; }}
-        .acc-card.loss .pick-text, .acc-card.missing .pick-text {{ color: #c5221f; }}
-        .acc-card.pending {{ background-color: #fff; border-color: #dadce0; }}
-        .acc-card.pending .pick-text {{ color: #5f6368; }}
+        .acc-card.win { background-color: #e6f4ea; border-color: #137333; }
+        .acc-card.win .pick-text { color: #137333; }
+        .acc-card.loss, .acc-card.missing { background-color: #fce8e6; border-color: #c5221f; }
+        .acc-card.loss .pick-text, .acc-card.missing .pick-text { color: #c5221f; }
+        .acc-card.pending { background-color: #fff; border-color: #dadce0; }
+        .acc-card.pending .pick-text { color: #5f6368; }
 
-        /* ------------------------- */
-        /* VIEW 2: HORIZONTAL TABLE  */
-        /* ------------------------- */
-        .table-view {{ background: #ffffff; padding: 10px 0 0 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none; }}
-        .instruction-text {{ font-size: 0.8rem; color: #888; padding: 0 15px 10px 15px; font-style: italic; }}
-        .horizontal-scroll-area {{ overflow-x: auto; white-space: nowrap; padding-bottom: 15px; }}
+        .table-view { background: #ffffff; padding: 10px 0 0 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none; }
+        .instruction-text { font-size: 0.8rem; color: #888; padding: 0 15px 10px 15px; font-style: italic; }
+        .horizontal-scroll-area { overflow-x: auto; white-space: nowrap; padding-bottom: 15px; }
         
-        .grid-row {{ display: flex; width: max-content; min-width: 100%; border-bottom: 1px solid #f0f2f6; background-color: #fff; }}
-        .grid-row:hover {{ background-color: #f8f9fa; }}
-        .header-row {{ background-color: #fafafa; border-bottom: 2px solid #e0e0e0; }}
+        .grid-row { display: flex; width: max-content; min-width: 100%; border-bottom: 1px solid #f0f2f6; background-color: #fff; }
+        .grid-row:hover { background-color: #f8f9fa; }
+        .header-row { background-color: #fafafa; border-bottom: 2px solid #e0e0e0; }
         
-        .locked-cols {{ position: sticky; left: 0; z-index: 2; display: flex; align-items: center; background-color: inherit; border-right: 2px solid #e0e0e0; }}
-        .col-name {{ width: 95px; padding: 12px 8px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
-        .col-wins {{ width: 40px; padding: 12px 4px; font-weight: 900; font-size: 1.05rem; text-align: center; }}
-        .col-tb {{ width: 45px; padding: 12px 4px; font-weight: bold; font-size: 0.95rem; text-align: center; color: #666; }}
-        .header-row .col-name, .header-row .col-wins, .header-row .col-tb {{ font-size: 0.75rem; color: #555; text-transform: uppercase; font-weight: normal; }}
+        .locked-cols { position: sticky; left: 0; z-index: 2; display: flex; align-items: center; background-color: inherit; border-right: 2px solid #e0e0e0; }
+        .col-name { width: 95px; padding: 12px 8px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .col-wins { width: 40px; padding: 12px 4px; font-weight: 900; font-size: 1.05rem; text-align: center; }
+        .col-tb { width: 45px; padding: 12px 4px; font-weight: bold; font-size: 0.95rem; text-align: center; color: #666; }
+        .header-row .col-name, .header-row .col-wins, .header-row .col-tb { font-size: 0.75rem; color: #555; text-transform: uppercase; font-weight: normal; }
         
-        .scroll-cols {{ display: flex; align-items: center; }}
-        .game-cell {{ width: 95px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }}
+        .scroll-cols { display: flex; align-items: center; }
+        .game-cell { width: 95px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        .matchup-logos {{ display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 4px; }}
-        .matchup-logos img {{ width: 24px; height: 24px; object-fit: contain; }}
-        .matchup-text {{ color: #555; font-size: 0.75rem; font-weight: bold; }}
+        .matchup-logos { display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 4px; }
+        .matchup-logos img { width: 24px; height: 24px; object-fit: contain; }
+        .matchup-text { color: #555; font-size: 0.75rem; font-weight: bold; }
         
-        .pick-box {{ display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; font-weight: 800; border-radius: 6px; padding: 6px 8px; width: 85px; box-sizing: border-box; }}
-        .pick-box img {{ width: 22px; height: 22px; object-fit: contain; border-radius: 4px; }}
+        .pick-box { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; font-weight: 800; border-radius: 6px; padding: 6px 8px; width: 85px; box-sizing: border-box; }
+        .pick-box img { width: 22px; height: 22px; object-fit: contain; border-radius: 4px; }
         
-        .pick-box.win {{ background-color: #e6f4ea; color: #137333; border: 1px solid #137333; }}
-        .pick-box.loss {{ background-color: #fce8e6; color: #c5221f; border: 1px solid #c5221f; }}
-        .pick-box.pending {{ background-color: #f1f3f4; color: #5f6368; border: 1px solid #dadce0; }}
-        .pick-box.missing {{ background-color: #ffffff; color: #ccc; border: 1px dashed #ccc; font-weight: normal; }}
+        .pick-box.win { background-color: #e6f4ea; color: #137333; border: 1px solid #137333; }
+        .pick-box.loss { background-color: #fce8e6; color: #c5221f; border: 1px solid #c5221f; }
+        .pick-box.pending { background-color: #f1f3f4; color: #5f6368; border: 1px solid #dadce0; }
+        .pick-box.missing { background-color: #ffffff; color: #ccc; border: 1px dashed #ccc; font-weight: normal; }
     </style>
-    
     <script>
-        function toggleViewMode(btn) {{
+        function toggleViewMode(btn) {
             const container = btn.closest('.week-container');
             const accView = container.querySelector('.accordion-view');
             const tblView = container.querySelector('.table-view');
             const isExpanding = btn.innerText === "Expand All";
             
-            if (isExpanding) {{
+            if (isExpanding) {
                 accView.style.display = 'none';
                 tblView.style.display = 'block';
                 btn.innerText = "Collapse All";
                 btn.style.backgroundColor = "#fce8e6";
                 btn.style.color = "#c5221f";
                 btn.style.borderColor = "#f5c6cb";
-            }} else {{
+            } else {
                 accView.style.display = 'block';
                 tblView.style.display = 'none';
                 btn.innerText = "Expand All";
@@ -281,33 +267,32 @@ html_content = f"""<!DOCTYPE html>
                 
                 const details = accView.querySelectorAll('details');
                 details.forEach(d => d.removeAttribute('open'));
-            }}
-        }}
-        
-        function filterWeek() {{
+            }
+        }
+        function filterWeek() {
             const selected = document.getElementById('week-filter').value;
             const containers = document.querySelectorAll('.week-container');
-            
-            containers.forEach(container => {{
-                if (selected === 'all' || container.id === selected) {{
+            containers.forEach(container => {
+                if (selected === 'all' || container.id === selected) {
                     container.style.display = 'block';
-                }} else {{
+                } else {
                     container.style.display = 'none';
-                }}
-            }});
-        }}
-        
-        window.onload = function() {{ filterWeek(); }};
+                }
+            });
+        }
+        window.onload = function() { filterWeek(); };
     </script>
 </head>
 <body>
     <h1>🏈 Office Pick'em</h1>
     <div class="filter-container">
         <select id="week-filter" onchange="filterWeek()">
-            {dropdown_options}
+            _DROPDOWN_OPTIONS_
         </select>
     </div>
 """
+
+html_content = HTML_TEMPLATE.replace("_DROPDOWN_OPTIONS_", dropdown_options)
 
 if warnings:
     html_content += "<div class='warning-banner'>⚠️ UPDATE THE OLDS DICTIONARY!"
@@ -322,7 +307,6 @@ for week_key in sorted_weeks:
     actual_tb = week_data["actual_tb"]
     all_games_final = week_data["all_final"]
     
-    # Generate Winner Banner Logic
     banner_html = ""
     if scores:
         max_wins = scores[0]['Wins']
@@ -343,7 +327,6 @@ for week_key in sorted_weeks:
                 for p in top_players:
                     try: p['tb_diff'] = abs(float(p['TB']) - actual_tb)
                     except: p['tb_diff'] = float('inf')
-                    
                 min_diff = min(p['tb_diff'] for p in top_players)
                 actual_winners = [p for p in top_players if p['tb_diff'] == min_diff]
                 
@@ -357,7 +340,7 @@ for week_key in sorted_weeks:
                     </div>
                     """
                 else:
-                    players_html = "".join([f"<div style='margin: 4px 0;'>{p['Player']} <span>(TB: {p['TB']})</span></div>" for p in actual_winners])
+                    players_html = "".join([f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>" for p in actual_winners])
                     banner_html = f"""
                     <div class='winner-banner tie'>
                         <div class='title'>🤝 TIED FOR 1ST PLACE</div>
@@ -366,7 +349,7 @@ for week_key in sorted_weeks:
                     </div>
                     """
             else:
-                players_html = "".join([f"<div style='margin: 4px 0;'>{p['Player']} <span>(TB: {p['TB']})</span></div>" for p in top_players])
+                players_html = "".join([f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>" for p in top_players])
                 banner_html = f"""
                 <div class='winner-banner tie'>
                     <div class='title'>🤝 TIED FOR 1ST PLACE</div>
@@ -383,7 +366,6 @@ for week_key in sorted_weeks:
         </div>
         {banner_html}
         
-        <!-- VIEW 1: ACCORDION LIST -->
         <div class="accordion-view">
     """
     
@@ -399,7 +381,6 @@ for week_key in sorted_weeks:
         for p in s['Picks']:
             pick_text = f"Picked: {p['pick']}" if p['pick'] else "NO PICK"
             status = p['status']
-            
             html_content += f"""
                     <div class="acc-card {status}">
                         <div class="logos">
@@ -407,4 +388,79 @@ for week_key in sorted_weeks:
                             <span style="font-size:0.8rem; color:#888;">@</span> 
                             <img src="{p['home_logo']}" title="{p['home']}">
                         </div>
-                        <div class="teams">{p['a
+                        <div class="teams">{p['away']} @ {p['home']}</div>
+                        <div class="pick-text">{pick_text}</div>
+                    </div>
+            """
+        html_content += """
+                </div>
+            </details>
+        """
+        
+    html_content += """
+        </div>
+        <div class="table-view">
+            <div class="instruction-text">Scroll right to view all matchups.</div>
+            <div class="horizontal-scroll-area">
+                <div class="grid-row header-row">
+                    <div class="locked-cols">
+                        <div class="col-name">Player</div>
+                        <div class="col-wins">Wins</div>
+                        <div class="col-tb">TB</div>
+                    </div>
+                    <div class="scroll-cols">
+    """
+    for g in api_games:
+        html_content += f"""
+                        <div class="game-cell">
+                            <div class="matchup-logos">
+                                <img src="{g['away_logo']}" title="{g['away']}"> 
+                                <span style="color: #888; font-size: 0.7rem;">@</span> 
+                                <img src="{g['home_logo']}" title="{g['home']}">
+                            </div>
+                            <div class="matchup-text">{g['away']} @ {g['home']}</div>
+                        </div>
+        """
+    html_content += """
+                    </div>
+                </div>
+    """
+    for s in scores:
+        html_content += f"""
+                <div class="grid-row player-row">
+                    <div class="locked-cols">
+                        <div class="col-name">{s['Player']}</div>
+                        <div class="col-wins">{s['Wins']}</div>
+                        <div class="col-tb">{s['TB']}</div>
+                    </div>
+                    <div class="scroll-cols">
+        """
+        for p in s['Picks']:
+            if p['pick']:
+                html_content += f"""
+                        <div class="game-cell">
+                            <div class="pick-box {p['status']}">
+                                <img src="{p['logo']}"> <span>{p['pick']}</span>
+                            </div>
+                        </div>
+                """
+            else:
+                html_content += """
+                        <div class="game-cell">
+                            <div class="pick-box missing">-</div>
+                        </div>
+                """
+        html_content += """
+                    </div>
+                </div>
+        """
+    html_content += """
+            </div>
+        </div>
+    </div>
+    """
+
+html_content += "</body></html>"
+
+with open("index.html", "w") as f:
+    f.write(html_content)
