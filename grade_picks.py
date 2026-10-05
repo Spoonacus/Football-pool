@@ -60,7 +60,6 @@ def process_picks():
 
     players = []
     team_row = df.iloc[0] 
-    
     max_col = df.shape[1] - 1
     
     for index, row in df.iloc[2:].iterrows():
@@ -69,17 +68,24 @@ def process_picks():
             continue
             
         correct_picks = 0
+        player_picks = []
         
         for col in range(1, max_col):
             if not pd.isna(row[col]): 
-                picked_team = team_row[col]
-                if pd.isna(picked_team):
+                picked_team = str(team_row[col]).strip()
+                if pd.isna(team_row[col]) or not picked_team:
                     continue
                     
                 norm_team = normalize_name(picked_team)
+                is_correct = any(norm_team in w for w in winners) or any(w in norm_team for w in winners)
                 
-                if any(norm_team in w for w in winners) or any(w in norm_team for w in winners):
+                if is_correct:
                     correct_picks += 1
+                
+                player_picks.append({
+                    "team": picked_team,
+                    "correct": is_correct
+                })
                 
         tie_breaker = row[max_col] if not pd.isna(row[max_col]) else 0
         
@@ -87,7 +93,8 @@ def process_picks():
             "rank": 0,
             "name": str(name).strip(),
             "score": correct_picks,
-            "tie_breaker": tie_breaker
+            "tie_breaker": tie_breaker,
+            "picks": player_picks
         })
 
     players.sort(key=lambda x: x['score'], reverse=True)
@@ -105,3 +112,4 @@ def process_picks():
 
 if __name__ == "__main__":
     process_picks()
+    
