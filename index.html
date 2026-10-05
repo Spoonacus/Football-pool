@@ -14,10 +14,10 @@
             <h1 class="text-3xl font-bold">NFL Pick'em</h1>
             <p id="week-title" class="text-green-200 mt-1 mb-4">Loading week...</p>
             
-            <!-- NEW: The First Place Spotlight Banner -->
+            <!-- Updated Leader Banner for Ties -->
             <div id="first-place-banner" class="bg-green-800 rounded-lg p-3 shadow-inner hidden border border-green-600">
-                <p class="text-xs text-green-300 uppercase tracking-widest font-bold">Current Leader</p>
-                <p class="text-2xl font-black text-yellow-400 mt-1" id="leader-name">--</p>
+                <p id="leader-header" class="text-xs text-green-300 uppercase tracking-widest font-bold">Current Leader</p>
+                <div id="leader-name" class="text-xl font-black text-yellow-400 mt-2 mb-1 leading-snug">--</div>
                 <p class="text-sm font-semibold mt-1 text-green-100" id="leader-score">-- Wins</p>
             </div>
         </div>
@@ -29,7 +29,6 @@
                         <th class="py-2 font-semibold w-12">Rank</th>
                         <th class="py-2 font-semibold">Player</th>
                         <th class="py-2 font-semibold text-center w-16">Wins</th>
-                        <!-- NEW: Tie Breaker Column -->
                         <th class="py-2 font-semibold text-right w-16">TB</th>
                     </tr>
                 </thead>
@@ -48,7 +47,6 @@
     <script>
         async function loadStandings() {
             try {
-                // Ensure the phone downloads the freshest data, not a cached version
                 const response = await fetch('standings.json?t=' + new Date().getTime());
                 
                 if (!response.ok) throw new Error("Data not found");
@@ -58,15 +56,30 @@
                 const tbody = document.getElementById('leaderboard-body');
                 tbody.innerHTML = ''; 
                 
-                // NEW: Populate the 1st place spotlight with whoever is at the top of the data
                 if (data.standings.length > 0) {
-                    const leader = data.standings[0];
+                    const topScore = data.standings[0].score;
+                    
+                    // Filter everyone who shares the highest score
+                    const leaders = data.standings.filter(player => player.score === topScore);
+                    
                     document.getElementById('first-place-banner').classList.remove('hidden');
-                    document.getElementById('leader-name').innerText = leader.name;
-                    document.getElementById('leader-score').innerText = leader.score + ' Correct Picks';
+                    document.getElementById('leader-score').innerText = topScore + ' Correct Picks';
+                    
+                    const nameContainer = document.getElementById('leader-name');
+                    const header = document.getElementById('leader-header');
+                    
+                    // Display differently if there is a tie
+                    if (leaders.length > 1) {
+                        header.innerText = 'TIED FOR 1ST PLACE';
+                        nameContainer.innerHTML = leaders.map(l => 
+                            `${l.name} <span class="text-sm font-normal text-green-200 ml-1">(TB: ${l.tie_breaker})</span>`
+                        ).join('<br>');
+                    } else {
+                        header.innerText = 'CURRENT LEADER';
+                        nameContainer.innerHTML = `${leaders[0].name} <span class="text-sm font-normal text-green-200 ml-1">(TB: ${leaders[0].tie_breaker})</span>`;
+                    }
                 }
                 
-                // Build the table rows with the tie breaker data included
                 data.standings.forEach(player => {
                     const tr = document.createElement('tr');
                     tr.className = "border-b border-gray-100 hover:bg-gray-50";
