@@ -18,9 +18,13 @@
         .week-header-bar h2 { margin: 0; color: #000; font-size: 1.4rem; }
         .expand-btn { background: #e6f4ea; color: #137333; border: 1px solid #c3e6cb; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; outline: none; }
         
-        /* ------------------------- */
-        /* VIEW 1: ACCORDION LIST    */
-        /* ------------------------- */
+        .winner-banner { background-color: #137333; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 0 0 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .winner-banner.tie { background-color: #0d652d; }
+        .winner-banner .title { font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; opacity: 0.9; }
+        .winner-banner .players { font-size: 1.15rem; font-weight: 900; line-height: 1.4; }
+        .winner-banner .players span { font-weight: normal; font-size: 0.95rem; opacity: 0.9; }
+        .winner-banner small { display: block; margin-top: 8px; opacity: 0.9; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; }
+
         details.player-card { background: #fff; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
         details.player-card summary { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; }
         details.player-card summary::-webkit-details-marker { display: none; }
@@ -42,9 +46,6 @@
         .acc-card.pending { background-color: #fff; border-color: #dadce0; }
         .acc-card.pending .pick-text { color: #5f6368; }
 
-        /* ------------------------- */
-        /* VIEW 2: HORIZONTAL TABLE  */
-        /* ------------------------- */
         .table-view { background: #ffffff; padding: 10px 0 0 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none; }
         .instruction-text { font-size: 0.8rem; color: #888; padding: 0 15px 10px 15px; font-style: italic; }
         .horizontal-scroll-area { overflow-x: auto; white-space: nowrap; padding-bottom: 15px; }
@@ -54,9 +55,10 @@
         .header-row { background-color: #fafafa; border-bottom: 2px solid #e0e0e0; }
         
         .locked-cols { position: sticky; left: 0; z-index: 2; display: flex; align-items: center; background-color: inherit; border-right: 2px solid #e0e0e0; }
-        .col-name { width: 110px; padding: 12px 10px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .col-wins { width: 45px; padding: 12px 10px; font-weight: 900; font-size: 1.1rem; text-align: center; }
-        .header-row .col-name, .header-row .col-wins { font-size: 0.8rem; color: #555; text-transform: uppercase; font-weight: normal; }
+        .col-name { width: 95px; padding: 12px 8px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .col-wins { width: 40px; padding: 12px 4px; font-weight: 900; font-size: 1.05rem; text-align: center; }
+        .col-tb { width: 45px; padding: 12px 4px; font-weight: bold; font-size: 0.95rem; text-align: center; color: #666; }
+        .header-row .col-name, .header-row .col-wins, .header-row .col-tb { font-size: 0.75rem; color: #555; text-transform: uppercase; font-weight: normal; }
         
         .scroll-cols { display: flex; align-items: center; }
         .game-cell { width: 95px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -73,7 +75,6 @@
         .pick-box.pending { background-color: #f1f3f4; color: #5f6368; border: 1px solid #dadce0; }
         .pick-box.missing { background-color: #ffffff; color: #ccc; border: 1px dashed #ccc; font-weight: normal; }
     </style>
-    
     <script>
         function toggleViewMode(btn) {
             const container = btn.closest('.week-container');
@@ -96,16 +97,13 @@
                 btn.style.color = "#137333";
                 btn.style.borderColor = "#c3e6cb";
                 
-                // Close accordions when returning to list view
                 const details = accView.querySelectorAll('details');
                 details.forEach(d => d.removeAttribute('open'));
             }
         }
-        
         function filterWeek() {
             const selected = document.getElementById('week-filter').value;
             const containers = document.querySelectorAll('.week-container');
-            
             containers.forEach(container => {
                 if (selected === 'all' || container.id === selected) {
                     container.style.display = 'block';
@@ -114,10 +112,7 @@
                 }
             });
         }
-        
-        window.onload = function() {
-            filterWeek();
-        };
+        window.onload = function() { filterWeek(); };
     </script>
 </head>
 <body>
@@ -131,20 +126,26 @@
 <option value='all'>Show All Weeks</option>
         </select>
     </div>
-
+<div class='warning-banner'>⚠️ UPDATE THE OLDS DICTIONARY!<small>Week 1: Excel has 14 games, but ESPN scheduled 16.</small><small>Week 2: Excel has 14 games, but ESPN scheduled 16.</small><small>Week 3: Excel has 13 games, but ESPN scheduled 16.</small><small>Week 4: Excel has 14 games, but ESPN scheduled 16.</small></div>
     <div class='week-container' id="Week-4">
         <div class="week-header-bar">
             <h2>Week 4</h2>
             <button class="expand-btn" onclick="toggleViewMode(this)">Expand All</button>
         </div>
         
-        <!-- VIEW 1: ACCORDION LIST -->
+                <div class='winner-banner tie'>
+                    <div class='title'>🤝 TIED FOR 1ST PLACE</div>
+                    <div class='players'><div style='margin: 4px 0;'>Mellie O. <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: 45)</span></div><div style='margin: 4px 0;'>TJ <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: 52)</span></div><div style='margin: 4px 0;'>TheJP <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: 48)</span></div></div>
+                    <small>11 Correct Picks so far</small>
+                </div>
+                
+        
         <div class="accordion-view">
     
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Mellie O.</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Mellie O.</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 45)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -313,8 +314,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">TJ</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">TJ</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 52)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -483,8 +484,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">TheJP</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">TheJP</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 48)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -653,8 +654,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Doc</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Doc</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 48)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -823,8 +824,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">SMAR</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">SMAR</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 47)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -993,8 +994,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Sandy & Omar</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Sandy & Omar</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 48)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -1163,8 +1164,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Earl</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Earl</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 47)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -1333,8 +1334,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Chib</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Chib</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 49)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -1503,8 +1504,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">SalmonHo</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">SalmonHo</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 49)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -1673,8 +1674,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Stu</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Stu</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 44)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -1843,8 +1844,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Jeff</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Jeff</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 54)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -2013,8 +2014,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Thesaraus</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Thesaraus</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 51)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -2183,8 +2184,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Des</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Des</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 48)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -2353,8 +2354,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Manny</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Manny</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 49)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -2523,8 +2524,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Nation</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Nation</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 40)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -2693,8 +2694,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Jenn</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Jenn</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 48)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -2863,8 +2864,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Spoonacus</span>
-                    <span style="font-size: 1.1rem; color: #000;">8 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Spoonacus</span>
+                    <span style="font-size: 1.0rem; color: #000;">8 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 45)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -3033,8 +3034,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Drewskiii</span>
-                    <span style="font-size: 1.1rem; color: #000;">8 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Drewskiii</span>
+                    <span style="font-size: 1.0rem; color: #000;">8 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 54)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -3203,8 +3204,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">THE LAKE CREW</span>
-                    <span style="font-size: 1.1rem; color: #000;">8 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">THE LAKE CREW</span>
+                    <span style="font-size: 1.0rem; color: #000;">8 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 43)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -3372,8 +3373,6 @@
             </details>
         
         </div>
-        
-        <!-- VIEW 2: HORIZONTAL TABLE (Hidden by Default) -->
         <div class="table-view">
             <div class="instruction-text">Scroll right to view all matchups.</div>
             <div class="horizontal-scroll-area">
@@ -3381,6 +3380,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Player</div>
                         <div class="col-wins">Wins</div>
+                        <div class="col-tb">TB</div>
                     </div>
                     <div class="scroll-cols">
     
@@ -3535,6 +3535,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Mellie O.</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">45</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -3641,6 +3642,7 @@
                     <div class="locked-cols">
                         <div class="col-name">TJ</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">52</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -3747,6 +3749,7 @@
                     <div class="locked-cols">
                         <div class="col-name">TheJP</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">48</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -3853,6 +3856,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Doc</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">48</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -3959,6 +3963,7 @@
                     <div class="locked-cols">
                         <div class="col-name">SMAR</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">47</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -4065,6 +4070,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Sandy & Omar</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">48</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -4171,6 +4177,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Earl</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">47</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -4277,6 +4284,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Chib</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">49</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -4383,6 +4391,7 @@
                     <div class="locked-cols">
                         <div class="col-name">SalmonHo</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">49</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -4489,6 +4498,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Stu</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">44</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -4595,6 +4605,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Jeff</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">54</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -4701,6 +4712,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Thesaraus</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">51</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -4807,6 +4819,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Des</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">48</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -4913,6 +4926,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Manny</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">49</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -5019,6 +5033,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Nation</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">40</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -5125,6 +5140,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Jenn</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">48</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -5231,6 +5247,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Spoonacus</div>
                         <div class="col-wins">8</div>
+                        <div class="col-tb">45</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -5337,6 +5354,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Drewskiii</div>
                         <div class="col-wins">8</div>
+                        <div class="col-tb">54</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -5443,6 +5461,7 @@
                     <div class="locked-cols">
                         <div class="col-name">THE LAKE CREW</div>
                         <div class="col-wins">8</div>
+                        <div class="col-tb">43</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -5555,13 +5574,19 @@
             <button class="expand-btn" onclick="toggleViewMode(this)">Expand All</button>
         </div>
         
-        <!-- VIEW 1: ACCORDION LIST -->
+            <div class='winner-banner'>
+                <div class='title'>🏆 WINNER</div>
+                <div class='players'>Spoonacus</div>
+                <small>11 Correct Picks</small>
+            </div>
+            
+        
         <div class="accordion-view">
     
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Spoonacus</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Spoonacus</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 49)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -5730,8 +5755,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Doc</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Doc</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 40)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -5900,8 +5925,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Thesaraus</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Thesaraus</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 44)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -6070,8 +6095,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">SMAR</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">SMAR</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 38)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -6240,8 +6265,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Chib</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Chib</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 49)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -6410,8 +6435,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">THE LAKE CREW</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">THE LAKE CREW</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 43)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -6580,8 +6605,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">TheJP</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">TheJP</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 45)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -6750,8 +6775,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Des</span>
-                    <span style="font-size: 1.1rem; color: #000;">8 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Des</span>
+                    <span style="font-size: 1.0rem; color: #000;">8 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 41)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -6920,8 +6945,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Earl</span>
-                    <span style="font-size: 1.1rem; color: #000;">8 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Earl</span>
+                    <span style="font-size: 1.0rem; color: #000;">8 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 41)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -7090,8 +7115,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Drewskii</span>
-                    <span style="font-size: 1.1rem; color: #000;">8 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Drewskii</span>
+                    <span style="font-size: 1.0rem; color: #000;">8 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 33)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -7260,8 +7285,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">STU</span>
-                    <span style="font-size: 1.1rem; color: #000;">8 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">STU</span>
+                    <span style="font-size: 1.0rem; color: #000;">8 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 42)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -7430,8 +7455,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Jenn</span>
-                    <span style="font-size: 1.1rem; color: #000;">8 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Jenn</span>
+                    <span style="font-size: 1.0rem; color: #000;">8 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 48)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -7600,8 +7625,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">SalmonHo</span>
-                    <span style="font-size: 1.1rem; color: #000;">7 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">SalmonHo</span>
+                    <span style="font-size: 1.0rem; color: #000;">7 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 49)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -7770,8 +7795,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Mellie O.</span>
-                    <span style="font-size: 1.1rem; color: #000;">7 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Mellie O.</span>
+                    <span style="font-size: 1.0rem; color: #000;">7 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 44)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -7940,8 +7965,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">TJ</span>
-                    <span style="font-size: 1.1rem; color: #000;">7 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">TJ</span>
+                    <span style="font-size: 1.0rem; color: #000;">7 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 52)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -8110,8 +8135,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Jeff</span>
-                    <span style="font-size: 1.1rem; color: #000;">7 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Jeff</span>
+                    <span style="font-size: 1.0rem; color: #000;">7 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 54)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -8280,8 +8305,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Sandy & Omar</span>
-                    <span style="font-size: 1.1rem; color: #000;">6 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Sandy & Omar</span>
+                    <span style="font-size: 1.0rem; color: #000;">6 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 42)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -8450,8 +8475,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Manny</span>
-                    <span style="font-size: 1.1rem; color: #000;">6 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Manny</span>
+                    <span style="font-size: 1.0rem; color: #000;">6 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 44)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -8620,8 +8645,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Nation</span>
-                    <span style="font-size: 1.1rem; color: #000;">6 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Nation</span>
+                    <span style="font-size: 1.0rem; color: #000;">6 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 38)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -8789,8 +8814,6 @@
             </details>
         
         </div>
-        
-        <!-- VIEW 2: HORIZONTAL TABLE (Hidden by Default) -->
         <div class="table-view">
             <div class="instruction-text">Scroll right to view all matchups.</div>
             <div class="horizontal-scroll-area">
@@ -8798,6 +8821,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Player</div>
                         <div class="col-wins">Wins</div>
+                        <div class="col-tb">TB</div>
                     </div>
                     <div class="scroll-cols">
     
@@ -8952,6 +8976,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Spoonacus</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">49</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -9058,6 +9083,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Doc</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">40</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -9164,6 +9190,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Thesaraus</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">44</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -9270,6 +9297,7 @@
                     <div class="locked-cols">
                         <div class="col-name">SMAR</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">38</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -9376,6 +9404,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Chib</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">49</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -9482,6 +9511,7 @@
                     <div class="locked-cols">
                         <div class="col-name">THE LAKE CREW</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">43</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -9588,6 +9618,7 @@
                     <div class="locked-cols">
                         <div class="col-name">TheJP</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">45</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -9694,6 +9725,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Des</div>
                         <div class="col-wins">8</div>
+                        <div class="col-tb">41</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -9800,6 +9832,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Earl</div>
                         <div class="col-wins">8</div>
+                        <div class="col-tb">41</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -9906,6 +9939,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Drewskii</div>
                         <div class="col-wins">8</div>
+                        <div class="col-tb">33</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -10012,6 +10046,7 @@
                     <div class="locked-cols">
                         <div class="col-name">STU</div>
                         <div class="col-wins">8</div>
+                        <div class="col-tb">42</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -10118,6 +10153,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Jenn</div>
                         <div class="col-wins">8</div>
+                        <div class="col-tb">48</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -10224,6 +10260,7 @@
                     <div class="locked-cols">
                         <div class="col-name">SalmonHo</div>
                         <div class="col-wins">7</div>
+                        <div class="col-tb">49</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -10328,6 +10365,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Mellie O.</div>
                         <div class="col-wins">7</div>
+                        <div class="col-tb">44</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -10434,6 +10472,7 @@
                     <div class="locked-cols">
                         <div class="col-name">TJ</div>
                         <div class="col-wins">7</div>
+                        <div class="col-tb">52</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -10540,6 +10579,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Jeff</div>
                         <div class="col-wins">7</div>
+                        <div class="col-tb">54</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -10646,6 +10686,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Sandy & Omar</div>
                         <div class="col-wins">6</div>
+                        <div class="col-tb">42</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -10752,6 +10793,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Manny</div>
                         <div class="col-wins">6</div>
+                        <div class="col-tb">44</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -10858,6 +10900,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Nation</div>
                         <div class="col-wins">6</div>
+                        <div class="col-tb">38</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -10970,13 +11013,19 @@
             <button class="expand-btn" onclick="toggleViewMode(this)">Expand All</button>
         </div>
         
-        <!-- VIEW 1: ACCORDION LIST -->
+                    <div class='winner-banner'>
+                        <div class='title'>🏆 TIEBREAKER WINNER</div>
+                        <div class='players'>Nation</div>
+                        <small>13 Wins | Guessed 38 | Actual Score: 34</small>
+                    </div>
+                    
+        
         <div class="accordion-view">
     
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Nation</span>
-                    <span style="font-size: 1.1rem; color: #000;">13 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Nation</span>
+                    <span style="font-size: 1.0rem; color: #000;">13 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 38)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -11145,8 +11194,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Jenn</span>
-                    <span style="font-size: 1.1rem; color: #000;">13 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Jenn</span>
+                    <span style="font-size: 1.0rem; color: #000;">13 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 48)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -11315,8 +11364,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Manny</span>
-                    <span style="font-size: 1.1rem; color: #000;">12 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Manny</span>
+                    <span style="font-size: 1.0rem; color: #000;">12 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 38)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -11485,8 +11534,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">THE LAKE CREW</span>
-                    <span style="font-size: 1.1rem; color: #000;">12 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">THE LAKE CREW</span>
+                    <span style="font-size: 1.0rem; color: #000;">12 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 46)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -11655,8 +11704,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Stu</span>
-                    <span style="font-size: 1.1rem; color: #000;">12 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Stu</span>
+                    <span style="font-size: 1.0rem; color: #000;">12 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 42)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -11825,8 +11874,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Doc</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Doc</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 48)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -11995,8 +12044,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Des</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Des</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 49)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -12165,8 +12214,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">SalmonHo</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">SalmonHo</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 49)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -12335,8 +12384,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Mellie O.</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Mellie O.</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 45)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -12505,8 +12554,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">SMAR</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">SMAR</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 50)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -12675,8 +12724,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Sandy & Omar</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Sandy & Omar</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 47)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -12845,8 +12894,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Chib</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Chib</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 49)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -13015,8 +13064,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Jeff</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Jeff</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 54)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -13185,8 +13234,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Thesaraus</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Thesaraus</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 47)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -13355,8 +13404,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Drew</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Drew</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 40)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -13525,8 +13574,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">TheJP</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">TheJP</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 48)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -13695,8 +13744,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Earl</span>
-                    <span style="font-size: 1.1rem; color: #000;">8 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Earl</span>
+                    <span style="font-size: 1.0rem; color: #000;">8 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 44)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -13865,8 +13914,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">TJ</span>
-                    <span style="font-size: 1.1rem; color: #000;">7 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">TJ</span>
+                    <span style="font-size: 1.0rem; color: #000;">7 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 52)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -14035,8 +14084,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Spoonacus</span>
-                    <span style="font-size: 1.1rem; color: #000;">5 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Spoonacus</span>
+                    <span style="font-size: 1.0rem; color: #000;">5 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 45)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -14205,8 +14254,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">0</span>
-                    <span style="font-size: 1.1rem; color: #000;">0 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">0</span>
+                    <span style="font-size: 1.0rem; color: #000;">0 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: N/A)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -14375,8 +14424,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">0</span>
-                    <span style="font-size: 1.1rem; color: #000;">0 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">0</span>
+                    <span style="font-size: 1.0rem; color: #000;">0 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: N/A)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -14544,8 +14593,6 @@
             </details>
         
         </div>
-        
-        <!-- VIEW 2: HORIZONTAL TABLE (Hidden by Default) -->
         <div class="table-view">
             <div class="instruction-text">Scroll right to view all matchups.</div>
             <div class="horizontal-scroll-area">
@@ -14553,6 +14600,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Player</div>
                         <div class="col-wins">Wins</div>
+                        <div class="col-tb">TB</div>
                     </div>
                     <div class="scroll-cols">
     
@@ -14707,6 +14755,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Nation</div>
                         <div class="col-wins">13</div>
+                        <div class="col-tb">38</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -14813,6 +14862,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Jenn</div>
                         <div class="col-wins">13</div>
+                        <div class="col-tb">48</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -14919,6 +14969,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Manny</div>
                         <div class="col-wins">12</div>
+                        <div class="col-tb">38</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -15025,6 +15076,7 @@
                     <div class="locked-cols">
                         <div class="col-name">THE LAKE CREW</div>
                         <div class="col-wins">12</div>
+                        <div class="col-tb">46</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -15131,6 +15183,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Stu</div>
                         <div class="col-wins">12</div>
+                        <div class="col-tb">42</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -15237,6 +15290,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Doc</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">48</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -15343,6 +15397,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Des</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">49</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -15449,6 +15504,7 @@
                     <div class="locked-cols">
                         <div class="col-name">SalmonHo</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">49</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -15555,6 +15611,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Mellie O.</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">45</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -15661,6 +15718,7 @@
                     <div class="locked-cols">
                         <div class="col-name">SMAR</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">50</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -15767,6 +15825,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Sandy & Omar</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">47</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -15873,6 +15932,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Chib</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">49</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -15979,6 +16039,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Jeff</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">54</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -16085,6 +16146,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Thesaraus</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">47</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -16191,6 +16253,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Drew</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">40</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -16297,6 +16360,7 @@
                     <div class="locked-cols">
                         <div class="col-name">TheJP</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">48</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -16403,6 +16467,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Earl</div>
                         <div class="col-wins">8</div>
+                        <div class="col-tb">44</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -16507,6 +16572,7 @@
                     <div class="locked-cols">
                         <div class="col-name">TJ</div>
                         <div class="col-wins">7</div>
+                        <div class="col-tb">52</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -16613,6 +16679,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Spoonacus</div>
                         <div class="col-wins">5</div>
+                        <div class="col-tb">45</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -16719,6 +16786,7 @@
                     <div class="locked-cols">
                         <div class="col-name">0</div>
                         <div class="col-wins">0</div>
+                        <div class="col-tb">N/A</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -16793,6 +16861,7 @@
                     <div class="locked-cols">
                         <div class="col-name">0</div>
                         <div class="col-wins">0</div>
+                        <div class="col-tb">N/A</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -16873,13 +16942,19 @@
             <button class="expand-btn" onclick="toggleViewMode(this)">Expand All</button>
         </div>
         
-        <!-- VIEW 1: ACCORDION LIST -->
+                    <div class='winner-banner'>
+                        <div class='title'>🏆 TIEBREAKER WINNER</div>
+                        <div class='players'>Doc</div>
+                        <small>12 Wins | Guessed 43 | Actual Score: 41</small>
+                    </div>
+                    
+        
         <div class="accordion-view">
     
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Doc</span>
-                    <span style="font-size: 1.1rem; color: #000;">12 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Doc</span>
+                    <span style="font-size: 1.0rem; color: #000;">12 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 43)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -17048,8 +17123,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Sandy & Omar</span>
-                    <span style="font-size: 1.1rem; color: #000;">12 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Sandy & Omar</span>
+                    <span style="font-size: 1.0rem; color: #000;">12 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 45)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -17218,8 +17293,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">TheJP</span>
-                    <span style="font-size: 1.1rem; color: #000;">12 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">TheJP</span>
+                    <span style="font-size: 1.0rem; color: #000;">12 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 35)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -17388,8 +17463,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Drew</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Drew</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 50)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -17558,8 +17633,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Mellie O.</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Mellie O.</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 41)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -17728,8 +17803,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Jenn</span>
-                    <span style="font-size: 1.1rem; color: #000;">11 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Jenn</span>
+                    <span style="font-size: 1.0rem; color: #000;">11 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 48)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -17898,8 +17973,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Des</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Des</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 42)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -18068,8 +18143,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Earl</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Earl</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 41)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -18238,8 +18313,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">RIP Spoonacus</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">RIP Spoonacus</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 45)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -18408,8 +18483,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Chib</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Chib</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 49)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -18578,8 +18653,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Manny</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Manny</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 43)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -18748,8 +18823,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">The Lake Crew</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">The Lake Crew</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 41)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -18918,8 +18993,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Nation</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Nation</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 34)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -19088,8 +19163,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Stu</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Stu</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 44)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -19258,8 +19333,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Jeff</span>
-                    <span style="font-size: 1.1rem; color: #000;">10 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Jeff</span>
+                    <span style="font-size: 1.0rem; color: #000;">10 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 54)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -19428,8 +19503,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Thesaraus</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Thesaraus</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 37)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -19598,8 +19673,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">SMAR</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">SMAR</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 39)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -19768,8 +19843,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">TJ</span>
-                    <span style="font-size: 1.1rem; color: #000;">9 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">TJ</span>
+                    <span style="font-size: 1.0rem; color: #000;">9 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 44)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -19938,8 +20013,8 @@
         
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">Salmon Ho</span>
-                    <span style="font-size: 1.1rem; color: #000;">8 Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">Salmon Ho</span>
+                    <span style="font-size: 1.0rem; color: #000;">8 Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: 41)</span></span>
                 </summary>
                 <div class="picks-grid">
         
@@ -20107,8 +20182,6 @@
             </details>
         
         </div>
-        
-        <!-- VIEW 2: HORIZONTAL TABLE (Hidden by Default) -->
         <div class="table-view">
             <div class="instruction-text">Scroll right to view all matchups.</div>
             <div class="horizontal-scroll-area">
@@ -20116,6 +20189,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Player</div>
                         <div class="col-wins">Wins</div>
+                        <div class="col-tb">TB</div>
                     </div>
                     <div class="scroll-cols">
     
@@ -20270,6 +20344,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Doc</div>
                         <div class="col-wins">12</div>
+                        <div class="col-tb">43</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -20376,6 +20451,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Sandy & Omar</div>
                         <div class="col-wins">12</div>
+                        <div class="col-tb">45</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -20482,6 +20558,7 @@
                     <div class="locked-cols">
                         <div class="col-name">TheJP</div>
                         <div class="col-wins">12</div>
+                        <div class="col-tb">35</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -20588,6 +20665,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Drew</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">50</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -20694,6 +20772,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Mellie O.</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">41</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -20800,6 +20879,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Jenn</div>
                         <div class="col-wins">11</div>
+                        <div class="col-tb">48</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -20906,6 +20986,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Des</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">42</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -21012,6 +21093,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Earl</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">41</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -21118,6 +21200,7 @@
                     <div class="locked-cols">
                         <div class="col-name">RIP Spoonacus</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">45</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -21224,6 +21307,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Chib</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">49</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -21330,6 +21414,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Manny</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">43</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -21436,6 +21521,7 @@
                     <div class="locked-cols">
                         <div class="col-name">The Lake Crew</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">41</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -21542,6 +21628,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Nation</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">34</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -21648,6 +21735,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Stu</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">44</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -21754,6 +21842,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Jeff</div>
                         <div class="col-wins">10</div>
+                        <div class="col-tb">54</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -21860,6 +21949,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Thesaraus</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">37</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -21966,6 +22056,7 @@
                     <div class="locked-cols">
                         <div class="col-name">SMAR</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">39</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -22072,6 +22163,7 @@
                     <div class="locked-cols">
                         <div class="col-name">TJ</div>
                         <div class="col-wins">9</div>
+                        <div class="col-tb">44</div>
                     </div>
                     <div class="scroll-cols">
         
@@ -22178,6 +22270,7 @@
                     <div class="locked-cols">
                         <div class="col-name">Salmon Ho</div>
                         <div class="col-wins">8</div>
+                        <div class="col-tb">41</div>
                     </div>
                     <div class="scroll-cols">
         
