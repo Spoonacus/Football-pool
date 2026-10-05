@@ -40,7 +40,8 @@ for file in sorted(excel_files):
     except ValueError:
         continue
 
-    df = pd.read_excel(file)
+    df = pd.read_excel(file).dropna(how='all', axis=1)
+    tb_col = df.columns[-1] # The last column is always the Tie Breaker
     
     # Fetch ESPN Data for this specific week
     api_url = f"http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week={week_num}"
@@ -73,12 +74,14 @@ for file in sorted(excel_files):
             else: winner = "TIE"
             
         api_games.append({
+            "date": event['date'],
             "home": home_abbr,
             "away": away_abbr,
             "home_logo": f"https://a.espncdn.com/i/teamlogos/nfl/500/{home_raw.lower()}.png",
             "away_logo": f"https://a.espncdn.com/i/teamlogos/nfl/500/{away_raw.lower()}.png",
             "state": state,
-            "winner": winner
+            "winner": winner,
+            "total_score": s_home + s_away
         })
         
     mapped_teams = [c for c in df.columns if str(c).strip() in team_aliases]
@@ -91,6 +94,17 @@ for file in sorted(excel_files):
         player_name = str(row.iloc[0]).strip()
         if pd.isna(player_name) or player_name.lower() in ['nan', 'tie breaker'] or player_name.lower().startswith('nfl week'):
             continue
+            
+        # Extract their Tie Breaker Guess
+        tb_val = row[tb_col]
+        if pd.notna(tb_val) and str(tb_val).strip() != '':
+            try:
+                tb_val = float(tb_val)
+                if tb_val.is_integer(): tb_val = int(tb_val)
+            except:
+                tb_val = "N/A"
+        else:
+            tb_val = "N/A"
             
         user_picks = set()
         for col in mapped_teams:
@@ -130,13 +144,21 @@ for file in sorted(excel_files):
                 "status": status_class
             })
                     
-        week_scores.append({"Player": player_name, "Wins": score, "Picks": player_picks})
+        week_scores.append({"Player": player_name, "Wins": score, "TB": tb_val, "Picks": player_picks})
     
     # Sort leaderboard highest to lowest
     week_scores = sorted(week_scores, key=lambda x: x['Wins'], reverse=True)
+    
+    # Calculate actual TB from the final chronological game
+    last_api_game = sorted(api_games, key=lambda x: x['date'])[-1] if api_games else None
+    actual_tb = last_api_game['total_score'] if last_api_game else 0
+    all_games_final = all(g['state'] == 'post' for g in api_games) if api_games else False
+    
     all_results[f"Week {week_num}"] = {
         "games": api_games,
-        "scores": week_scores
+        "scores": week_scores,
+        "actual_tb": actual_tb,
+        "all_final": all_games_final
     }
 
 sorted_weeks = sorted(all_results.keys(), key=lambda x: int(x.replace("Week ", "")), reverse=True)
@@ -168,6 +190,16 @@ html_content = f"""<!DOCTYPE html>
         .week-header-bar h2 {{ margin: 0; color: #000; font-size: 1.4rem; }}
         .expand-btn {{ background: #e6f4ea; color: #137333; border: 1px solid #c3e6cb; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; outline: none; }}
         
+        /* ------------------------- */
+        /* WINNER BANNER             */
+        /* ------------------------- */
+        .winner-banner {{ background-color: #137333; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 0 0 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+        .winner-banner.tie {{ background-color: #0d652d; }}
+        .winner-banner .title {{ font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; opacity: 0.9; }}
+        .winner-banner .players {{ font-size: 1.15rem; font-weight: 900; line-height: 1.4; }}
+        .winner-banner .players span {{ font-weight: normal; font-size: 0.95rem; opacity: 0.9; }}
+        .winner-banner small {{ display: block; margin-top: 8px; opacity: 0.9; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; }}
+
         /* ------------------------- */
         /* VIEW 1: ACCORDION LIST    */
         /* ------------------------- */
@@ -204,9 +236,10 @@ html_content = f"""<!DOCTYPE html>
         .header-row {{ background-color: #fafafa; border-bottom: 2px solid #e0e0e0; }}
         
         .locked-cols {{ position: sticky; left: 0; z-index: 2; display: flex; align-items: center; background-color: inherit; border-right: 2px solid #e0e0e0; }}
-        .col-name {{ width: 110px; padding: 12px 10px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
-        .col-wins {{ width: 45px; padding: 12px 10px; font-weight: 900; font-size: 1.1rem; text-align: center; }}
-        .header-row .col-name, .header-row .col-wins {{ font-size: 0.8rem; color: #555; text-transform: uppercase; font-weight: normal; }}
+        .col-name {{ width: 95px; padding: 12px 8px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+        .col-wins {{ width: 40px; padding: 12px 4px; font-weight: 900; font-size: 1.05rem; text-align: center; }}
+        .col-tb {{ width: 45px; padding: 12px 4px; font-weight: bold; font-size: 0.95rem; text-align: center; color: #666; }}
+        .header-row .col-name, .header-row .col-wins, .header-row .col-tb {{ font-size: 0.75rem; color: #555; text-transform: uppercase; font-weight: normal; }}
         
         .scroll-cols {{ display: flex; align-items: center; }}
         .game-cell {{ width: 95px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }}
@@ -246,7 +279,6 @@ html_content = f"""<!DOCTYPE html>
                 btn.style.color = "#137333";
                 btn.style.borderColor = "#c3e6cb";
                 
-                // Close accordions when returning to list view
                 const details = accView.querySelectorAll('details');
                 details.forEach(d => d.removeAttribute('open'));
             }}
@@ -265,9 +297,7 @@ html_content = f"""<!DOCTYPE html>
             }});
         }}
         
-        window.onload = function() {{
-            filterWeek();
-        }};
+        window.onload = function() {{ filterWeek(); }};
     </script>
 </head>
 <body>
@@ -289,6 +319,61 @@ for week_key in sorted_weeks:
     week_data = all_results[week_key]
     api_games = week_data["games"]
     scores = week_data["scores"]
+    actual_tb = week_data["actual_tb"]
+    all_games_final = week_data["all_final"]
+    
+    # Generate Winner Banner Logic
+    banner_html = ""
+    if scores:
+        max_wins = scores[0]['Wins']
+        top_players = [s for s in scores if s['Wins'] == max_wins]
+        
+        if len(top_players) == 1:
+            win_p = top_players[0]
+            status_title = "WINNER" if all_games_final else "CURRENT LEADER"
+            banner_html = f"""
+            <div class='winner-banner'>
+                <div class='title'>🏆 {status_title}</div>
+                <div class='players'>{win_p['Player']}</div>
+                <small>{max_wins} Correct Picks</small>
+            </div>
+            """
+        else:
+            if all_games_final:
+                for p in top_players:
+                    try: p['tb_diff'] = abs(float(p['TB']) - actual_tb)
+                    except: p['tb_diff'] = float('inf')
+                    
+                min_diff = min(p['tb_diff'] for p in top_players)
+                actual_winners = [p for p in top_players if p['tb_diff'] == min_diff]
+                
+                if len(actual_winners) == 1:
+                    win_p = actual_winners[0]
+                    banner_html = f"""
+                    <div class='winner-banner'>
+                        <div class='title'>🏆 TIEBREAKER WINNER</div>
+                        <div class='players'>{win_p['Player']}</div>
+                        <small>{max_wins} Wins | Guessed {win_p['TB']} | Actual Score: {actual_tb}</small>
+                    </div>
+                    """
+                else:
+                    players_html = "".join([f"<div style='margin: 4px 0;'>{p['Player']} <span>(TB: {p['TB']})</span></div>" for p in actual_winners])
+                    banner_html = f"""
+                    <div class='winner-banner tie'>
+                        <div class='title'>🤝 TIED FOR 1ST PLACE</div>
+                        <div class='players'>{players_html}</div>
+                        <small>{max_wins} Wins | Actual Score: {actual_tb}</small>
+                    </div>
+                    """
+            else:
+                players_html = "".join([f"<div style='margin: 4px 0;'>{p['Player']} <span>(TB: {p['TB']})</span></div>" for p in top_players])
+                banner_html = f"""
+                <div class='winner-banner tie'>
+                    <div class='title'>🤝 TIED FOR 1ST PLACE</div>
+                    <div class='players'>{players_html}</div>
+                    <small>{max_wins} Correct Picks so far</small>
+                </div>
+                """
     
     html_content += f"""
     <div class='week-container' id="{week_id}">
@@ -296,6 +381,7 @@ for week_key in sorted_weeks:
             <h2>{week_key}</h2>
             <button class="expand-btn" onclick="toggleViewMode(this)">Expand All</button>
         </div>
+        {banner_html}
         
         <!-- VIEW 1: ACCORDION LIST -->
         <div class="accordion-view">
@@ -305,8 +391,8 @@ for week_key in sorted_weeks:
         html_content += f"""
             <details class="player-card">
                 <summary>
-                    <span style="font-size: 1.1rem; color: #333;">{s['Player']}</span>
-                    <span style="font-size: 1.1rem; color: #000;">{s['Wins']} Wins</span>
+                    <span style="font-size: 1.05rem; color: #333;">{s['Player']}</span>
+                    <span style="font-size: 1.0rem; color: #000;">{s['Wins']} Wins <span style="color:#888; font-size:0.85rem; margin-left:4px;">(TB: {s['TB']})</span></span>
                 </summary>
                 <div class="picks-grid">
         """
@@ -321,85 +407,4 @@ for week_key in sorted_weeks:
                             <span style="font-size:0.8rem; color:#888;">@</span> 
                             <img src="{p['home_logo']}" title="{p['home']}">
                         </div>
-                        <div class="teams">{p['away']} @ {p['home']}</div>
-                        <div class="pick-text">{pick_text}</div>
-                    </div>
-            """
-        html_content += """
-                </div>
-            </details>
-        """
-        
-    html_content += """
-        </div>
-        
-        <!-- VIEW 2: HORIZONTAL TABLE (Hidden by Default) -->
-        <div class="table-view">
-            <div class="instruction-text">Scroll right to view all matchups.</div>
-            <div class="horizontal-scroll-area">
-                <div class="grid-row header-row">
-                    <div class="locked-cols">
-                        <div class="col-name">Player</div>
-                        <div class="col-wins">Wins</div>
-                    </div>
-                    <div class="scroll-cols">
-    """
-    
-    for g in api_games:
-        html_content += f"""
-                        <div class="game-cell">
-                            <div class="matchup-logos">
-                                <img src="{g['away_logo']}" title="{g['away']}"> 
-                                <span style="color: #888; font-size: 0.7rem;">@</span> 
-                                <img src="{g['home_logo']}" title="{g['home']}">
-                            </div>
-                            <div class="matchup-text">{g['away']} @ {g['home']}</div>
-                        </div>
-        """
-        
-    html_content += """
-                    </div>
-                </div>
-    """
-    
-    for s in scores:
-        html_content += f"""
-                <div class="grid-row player-row">
-                    <div class="locked-cols">
-                        <div class="col-name">{s['Player']}</div>
-                        <div class="col-wins">{s['Wins']}</div>
-                    </div>
-                    <div class="scroll-cols">
-        """
-        for p in s['Picks']:
-            if p['pick']:
-                html_content += f"""
-                        <div class="game-cell">
-                            <div class="pick-box {p['status']}">
-                                <img src="{p['logo']}"> <span>{p['pick']}</span>
-                            </div>
-                        </div>
-                """
-            else:
-                html_content += """
-                        <div class="game-cell">
-                            <div class="pick-box missing">-</div>
-                        </div>
-                """
-                
-        html_content += """
-                    </div>
-                </div>
-        """
-        
-    html_content += """
-            </div>
-        </div>
-    </div>
-    """
-
-html_content += "</body></html>"
-
-with open("index.html", "w") as f:
-    f.write(html_content)
-    
+                        <div class="teams">{p['a
