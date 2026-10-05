@@ -6,30 +6,30 @@
     <title>NFL Pool Leaderboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-200 text-gray-900 p-4 font-sans flex justify-center mt-6">
+<body class="bg-gray-200 text-gray-900 p-3 font-sans flex justify-center mt-4">
     
     <div class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
         
-        <div class="bg-green-700 text-white p-6 text-center relative overflow-hidden">
+        <div class="bg-green-700 text-white p-5 text-center relative overflow-hidden">
             <h1 class="text-3xl font-bold">NFL Pick'em</h1>
-            <p id="week-title" class="text-green-200 mt-1 mb-4">Loading week...</p>
+            <p id="week-title" class="text-green-200 mt-1 mb-3">Loading week...</p>
             
-            <!-- Updated Leader Banner for Ties -->
             <div id="first-place-banner" class="bg-green-800 rounded-lg p-3 shadow-inner hidden border border-green-600">
                 <p id="leader-header" class="text-xs text-green-300 uppercase tracking-widest font-bold">Current Leader</p>
-                <div id="leader-name" class="text-xl font-black text-yellow-400 mt-2 mb-1 leading-snug">--</div>
-                <p class="text-sm font-semibold mt-1 text-green-100" id="leader-score">-- Wins</p>
+                <div id="leader-name" class="text-xl font-black text-yellow-400 mt-1 mb-1 leading-snug">--</div>
+                <p class="text-sm font-semibold text-green-100" id="leader-score">-- Wins</p>
             </div>
         </div>
         
-        <div class="p-4">
-            <table class="w-full text-left">
+        <div class="p-3">
+            <p class="text-xs text-gray-400 text-center mb-2 italic">Tap any player to view their picks</p>
+            <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="text-gray-500 border-b-2 border-gray-200 text-sm">
-                        <th class="py-2 font-semibold w-12">Rank</th>
+                        <th class="py-2 pl-2 font-semibold w-10">Rank</th>
                         <th class="py-2 font-semibold">Player</th>
-                        <th class="py-2 font-semibold text-center w-16">Wins</th>
-                        <th class="py-2 font-semibold text-right w-16">TB</th>
+                        <th class="py-2 font-semibold text-center w-14">Wins</th>
+                        <th class="py-2 pr-2 font-semibold text-right w-12">TB</th>
                     </tr>
                 </thead>
                 <tbody id="leaderboard-body">
@@ -45,10 +45,16 @@
     </div>
 
     <script>
+        function togglePicks(id) {
+            const drawer = document.getElementById(id);
+            if (drawer) {
+                drawer.classList.toggle('hidden');
+            }
+        }
+
         async function loadStandings() {
             try {
                 const response = await fetch('standings.json?t=' + new Date().getTime());
-                
                 if (!response.ok) throw new Error("Data not found");
                 const data = await response.json();
                 
@@ -58,8 +64,6 @@
                 
                 if (data.standings.length > 0) {
                     const topScore = data.standings[0].score;
-                    
-                    // Filter everyone who shares the highest score
                     const leaders = data.standings.filter(player => player.score === topScore);
                     
                     document.getElementById('first-place-banner').classList.remove('hidden');
@@ -68,29 +72,54 @@
                     const nameContainer = document.getElementById('leader-name');
                     const header = document.getElementById('leader-header');
                     
-                    // Display differently if there is a tie
                     if (leaders.length > 1) {
                         header.innerText = 'TIED FOR 1ST PLACE';
                         nameContainer.innerHTML = leaders.map(l => 
-                            `${l.name} <span class="text-sm font-normal text-green-200 ml-1">(TB: ${l.tie_breaker})</span>`
+                            `${l.name} <span class="text-sm font-normal text-green-200">(TB: ${l.tie_breaker})</span>`
                         ).join('<br>');
                     } else {
                         header.innerText = 'CURRENT LEADER';
-                        nameContainer.innerHTML = `${leaders[0].name} <span class="text-sm font-normal text-green-200 ml-1">(TB: ${leaders[0].tie_breaker})</span>`;
+                        nameContainer.innerHTML = `${leaders[0].name} <span class="text-sm font-normal text-green-200">(TB: ${leaders[0].tie_breaker})</span>`;
                     }
                 }
                 
-                data.standings.forEach(player => {
+                data.standings.forEach((player, idx) => {
+                    const rowId = `picks-${idx}`;
+                    
+                    // Main Player Row
                     const tr = document.createElement('tr');
-                    tr.className = "border-b border-gray-100 hover:bg-gray-50";
+                    tr.className = "border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition select-none active:bg-gray-100";
+                    tr.onclick = () => togglePicks(rowId);
                     
                     tr.innerHTML = `
-                        <td class="py-3 font-bold text-lg text-gray-700">${player.rank}</td>
-                        <td class="py-3 font-semibold text-gray-800">${player.name}</td>
+                        <td class="py-3 pl-2 font-bold text-base text-gray-700">${player.rank}</td>
+                        <td class="py-3 font-semibold text-gray-800 flex items-center gap-1">
+                            <span>${player.name}</span>
+                            <span class="text-[10px] text-gray-400">▾</span>
+                        </td>
                         <td class="py-3 font-bold text-center text-green-600">${player.score}</td>
-                        <td class="py-3 font-medium text-right text-gray-400">${player.tie_breaker}</td>
+                        <td class="py-3 pr-2 font-medium text-right text-gray-400 text-sm">${player.tie_breaker}</td>
                     `;
                     tbody.appendChild(tr);
+
+                    // Expandable Picks Drawer
+                    const drawerRow = document.createElement('tr');
+                    drawerRow.id = rowId;
+                    drawerRow.className = "hidden bg-gray-50 border-b border-gray-200";
+
+                    const pickBadges = (player.picks || []).map(p => {
+                        const bg = p.correct ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-50 text-red-600 border-red-200 line-through opacity-70';
+                        return `<span class="inline-block text-xs font-semibold px-2 py-0.5 rounded border ${bg}">${p.team}</span>`;
+                    }).join('');
+
+                    drawerRow.innerHTML = `
+                        <td colspan="4" class="p-3">
+                            <div class="flex flex-wrap gap-1.5">
+                                ${pickBadges || '<span class="text-xs text-gray-400">No individual picks recorded</span>'}
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(drawerRow);
                 });
             } catch (error) {
                 document.getElementById('leaderboard-body').innerHTML = 
