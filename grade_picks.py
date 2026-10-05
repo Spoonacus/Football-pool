@@ -105,4 +105,3 @@ def process_picks():
 
 if __name__ == "__main__":
     process_picks()
-    
