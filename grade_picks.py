@@ -25,7 +25,6 @@ def get_espn_winners(week_num):
         for comp in event['competitions'][0]['competitors']:
             if comp.get('winner') == True:
                 team = comp.get('team', {})
-                # Use .get() to safely pull names without crashing if one is missing
                 if team.get('name'): winners.append(team.get('name').lower())
                 if team.get('nickname'): winners.append(team.get('nickname').lower())
                 if team.get('displayName'): winners.append(team.get('displayName').lower())
@@ -44,11 +43,9 @@ def process_picks():
     except:
         df = pd.read_excel(latest_file, header=None)
 
-    # Find the week number in Cell A2
     week_title = str(df.iloc[1, 0]).strip()
     match = re.search(r'\d+', week_title)
     
-    # Fallback: check the filename for a number if A2 is blank
     if not match:
         match = re.search(r'\d+', latest_file)
         
@@ -56,7 +53,6 @@ def process_picks():
         week_num = int(match.group())
         week_title = f"NFL Week {week_num}"
     else:
-        # Default to Week 1 if no number is found anywhere
         week_num = 1
         week_title = "NFL Week 1"
         
@@ -106,7 +102,7 @@ def process_picks():
     
     with open('standings.json', 'w') as f:
         json.dump(output_data, f, indent=4)
-        
+
 if __name__ == "__main__":
     process_picks()
     
