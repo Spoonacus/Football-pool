@@ -179,7 +179,6 @@ for w in sorted_weeks:
     dropdown_options += f"<option value='{w_id}'>{w}</option>\n"
 dropdown_options += "<option value='all'>Show All Weeks</option>"
 
-# Bulletproof Timestamp Generator
 update_time_utc = time.strftime("%b %d, %I:%M %p UTC", time.gmtime())
 
 HTML_TEMPLATE = """<!DOCTYPE html>
@@ -307,7 +306,8 @@ html_content = HTML_TEMPLATE.replace("_DROPDOWN_OPTIONS_", dropdown_options).rep
 
 if warnings:
     html_content += "<div class='warning-banner'>⚠️ UPDATE THE OLDS DICTIONARY!"
-    for w in warnings: html_content += f"<small>{w}</small>"
+    for w in warnings:
+        html_content += f"<small>{w}</small>"
     html_content += "</div>"
 
 for week_key in sorted_weeks:
@@ -326,29 +326,43 @@ for week_key in sorted_weeks:
         if len(top_players) == 1:
             win_p = top_players[0]
             status_title = "WINNER" if all_games_final else "CURRENT LEADER"
-            banner_html = f"<div class='winner-banner'><div class='title'>🏆 {status_title}</div><div class='players'>{win_p['Player']}</div><small>{max_wins} Correct Picks</small></div>"
+            banner_html += "<div class='winner-banner'>"
+            banner_html += f"<div class='title'>🏆 {status_title}</div>"
+            banner_html += f"<div class='players'>{win_p['Player']}</div>"
+            banner_html += f"<small>{max_wins} Correct Picks</small>"
+            banner_html += "</div>"
         else:
             if all_games_final:
                 for p in top_players:
-                    try: p['tb_diff'] = abs(float(p['TB']) - actual_tb)
-                    except: p['tb_diff'] = float('inf')
+                    try:
+                        p['tb_diff'] = abs(float(p['TB']) - actual_tb)
+                    except:
+                        p['tb_diff'] = float('inf')
                 min_diff = min(p['tb_diff'] for p in top_players)
                 actual_winners = [p for p in top_players if p['tb_diff'] == min_diff]
                 
                 if len(actual_winners) == 1:
                     win_p = actual_winners[0]
-                    banner_html = f"<div class='winner-banner'><div class='title'>🏆 TIEBREAKER WINNER</div><div class='players'>{win_p['Player']}</div><small>{max_wins} Wins | Guessed {win_p['TB']} | Actual Score: {actual_tb}</small></div>"
+                    banner_html += "<div class='winner-banner'>"
+                    banner_html += "<div class='title'>🏆 TIEBREAKER WINNER</div>"
+                    banner_html += f"<div class='players'>{win_p['Player']}</div>"
+                    banner_html += f"<small>{max_wins} Wins | Guessed {win_p['TB']} | Actual Score: {actual_tb}</small>"
+                    banner_html += "</div>"
                 else:
-                    players_html = "".join([f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>" for p in actual_winners])
-                    banner_html = f"<div class='winner-banner tie'><div class='title'>🤝 TIED FOR 1ST PLACE</div><div class='players'>{players_html}</div><small>{max_wins} Wins | Actual Score: {actual_tb}</small></div>"
+                    banner_html += "<div class='winner-banner tie'>"
+                    banner_html += "<div class='title'>🤝 TIED FOR 1ST PLACE</div>"
+                    banner_html += "<div class='players'>"
+                    for p in actual_winners:
+                        banner_html += f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>"
+                    banner_html += "</div>"
+                    banner_html += f"<small>{max_wins} Wins | Actual Score: {actual_tb}</small>"
+                    banner_html += "</div>"
             else:
-                players_html = "".join([f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>" for p in top_players])
-                banner_html = f"<div class='winner-banner tie'><div class='title'>🤝 TIED FOR 1ST PLACE</div><div class='players'>{players_html}</div><small>{max_wins} Correct Picks so far</small></div>"
-    
-    html_content += f"<div class='week-container' id='{week_id}'>"
-    html_content += f"<div class='week-header-bar'><h2>{week_key}</h2><button class='expand-btn' onclick='toggleViewMode(this)'>Expand All</button></div>"
-    html_content += banner_html
-    html_content += "<div class='accordion-view'>"
-    
-    for s in scores:
-        html_content += f"<details class='player-card'><summary><span style='font-size: 1.05rem; color: #333;'>{s['Player']}</span><span style='font-size: 1.0rem; color: #000;'>{s['Wins']} Wins <span style='color:#888; font-size:0.85rem; margin-left:4px;'>(TB: {s['TB']})</span></span></summary>
+                banner_html += "<div class='winner-banner tie'>"
+                banner_html += "<div class='title'>🤝 TIED FOR 1ST PLACE</div>"
+                banner_html += "<div class='players'>"
+                for p in top_players:
+                    banner_html += f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>"
+                banner_html += "</div>"
+                banner_html += f"<small>{max_wins} Correct Picks so far</small>"
+              
