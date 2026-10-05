@@ -1,6 +1,5 @@
 name: Update Leaderboard
 
-# This tells GitHub to run the script whenever you upload a new Excel file
 on:
   workflow_dispatch:
   push:
@@ -8,8 +7,10 @@ on:
       - '**.xlsx'
       - '**.xls'
       - 'grade_picks.py'
+  schedule:
+    # Runs every 10 minutes on Thursdays, Sundays, and Mondays (UTC)
+    - cron: '*/10 0-5,16-23 * * 0,1,4'
 
-# Gives the script permission to save the JSON file back to the repository
 permissions:
   contents: write
 
@@ -18,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -36,6 +37,6 @@ jobs:
           git config --global user.name "NFL-Bot"
           git config --global user.email "bot@nflpool.local"
           git add standings.json index.html
-          git commit -m "Auto-updated standings" || echo "No changes to commit"
+          git commit -m "Auto-updated standings [skip ci]" || echo "No changes to commit"
           git push
           
