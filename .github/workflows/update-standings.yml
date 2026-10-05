@@ -8,15 +8,22 @@ on:
       - '**.xls'
       - 'grade_picks.py'
   schedule:
-    # Runs every 10 minutes on Thursdays, Sundays, and Mondays (UTC)
+    # Runs every 10 minutes on Thursdays, Sundays, and Mondays
     - cron: '*/10 0-5,16-23 * * 0,1,4'
 
+# Gives the robot permission to publish to GitHub Pages
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  grade-picks:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -32,11 +39,12 @@ jobs:
       - name: Run Grading Script
         run: python grade_picks.py
 
-      - name: Save and Commit Standings
-        run: |
-          git config --global user.name "NFL-Bot"
-          git config --global user.email "bot@nflpool.local"
-          git add standings.json index.html
-          git commit -m "Auto-updated standings" || echo "No changes to commit"
-          git push
-          
+      - name: Package Website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Publish to Live Site
+        id: deployment
+        uses: actions/deploy-pages@v4
+        
