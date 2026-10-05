@@ -35,7 +35,7 @@ jobs:
         run: |
           git config --global user.name "NFL-Bot"
           git config --global user.email "bot@nflpool.local"
-          git add standings.json.html
+          git add standings.json index.html
           git commit -m "Auto-updated standings" || echo "No changes to commit"
           git push
           
