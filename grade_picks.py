@@ -1,7 +1,7 @@
 import os
 import glob
 import json
-import datetime
+import time
 import pandas as pd
 import requests
 
@@ -53,7 +53,7 @@ for file in sorted(excel_files):
             tb_col = valid_cols[-1]
     
     # Fetch ESPN Data
-    api_url = f"http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week={week_num}"
+    api_url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week={week_num}"
     try:
         resp = requests.get(api_url)
         api_data = resp.json() if resp.status_code == 200 else {}
@@ -179,7 +179,8 @@ for w in sorted_weeks:
     dropdown_options += f"<option value='{w_id}'>{w}</option>\n"
 dropdown_options += "<option value='all'>Show All Weeks</option>"
 
-update_time_utc = datetime.datetime.now(datetime.timezone.utc).strftime("%b %d, %I:%M %p UTC")
+# Bulletproof Timestamp Generator
+update_time_utc = time.strftime("%b %d, %I:%M %p UTC", time.gmtime())
 
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html>
@@ -314,7 +315,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             }
             filterWeek(false);
             
-            // Auto-refresh the browser every 60 seconds
             setTimeout(function() {
                 window.location.reload();
             }, 60000);
@@ -391,4 +391,5 @@ for week_key in sorted_weeks:
                 players_html = "".join([f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>" for p in top_players])
                 banner_html = f"""
                 <div class='winner-banner tie'>
-                    <div class='title'>🤝 TIED 
+                    <div class='title'>🤝 TIED FOR 1ST PLACE</div>
+                    <div class=
