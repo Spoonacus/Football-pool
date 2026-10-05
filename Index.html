@@ -1,26 +1,55 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFL Pool Standings</title>
-    
-    <!-- This single line imports Tailwind CSS so we can style easily -->
+    <title>NFL Pool Leaderboard</title>
+    <!-- Imports our styling tools -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
-<!-- The body is everything visible on the screen -->
-<body class="bg-gray-100 text-gray-900 h-screen flex flex-col items-center justify-center">
+<body class="bg-gray-200 text-gray-900 p-4 font-sans flex justify-center mt-10">
     
-    <!-- This div acts as a container or "card" for our content -->
-    <div class="bg-white p-8 rounded-xl shadow-lg text-center w-11/12 max-w-md">
+    <!-- The main leaderboard card -->
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
         
-        <!-- The main title -->
-        <h1 class="text-3xl font-bold text-slate-800 mb-2">NFL Pool</h1>
+        <!-- Header Section -->
+        <div class="bg-green-700 text-white p-6 text-center">
+            <h1 class="text-3xl font-bold">NFL Pick'em</h1>
+            <p class="text-green-200 mt-1">Week 1 Standings</p>
+        </div>
         
-        <!-- A simple subtitle -->
-        <p class="text-gray-500">The canvas is ready.</p>
+        <!-- Table Section -->
+        <div class="p-4">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="text-gray-500 border-b-2 border-gray-200">
+                        <th class="py-2 font-semibold">Rank</th>
+                        <th class="py-2 font-semibold">Player</th>
+                        <th class="py-2 font-semibold text-right">Picks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Player 1 -->
+                    <tr class="border-b border-gray-100">
+                        <td class="py-3 font-bold text-lg text-gray-700">1</td>
+                        <td class="py-3 font-semibold text-gray-800">Dave</td>
+                        <td class="py-3 font-bold text-right text-green-600">11</td>
+                    </tr>
+                    <!-- Player 2 -->
+                    <tr class="border-b border-gray-100">
+                        <td class="py-3 font-bold text-lg text-gray-700">2</td>
+                        <td class="py-3 font-semibold text-gray-800">Sarah</td>
+                        <td class="py-3 font-bold text-right text-green-600">9</td>
+                    </tr>
+                    <!-- Player 3 -->
+                    <tr>
+                        <td class="py-3 font-bold text-lg text-gray-700">3</td>
+                        <td class="py-3 font-semibold text-gray-800">Mike</td>
+                        <td class="py-3 font-bold text-right text-green-600">7</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         
     </div>
 
