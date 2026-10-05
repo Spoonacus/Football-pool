@@ -2,10 +2,12 @@ name: Update Leaderboard
 
 # This tells GitHub to run the script whenever you upload a new Excel file
 on:
+  workflow_dispatch:
   push:
     paths:
       - '**.xlsx'
       - '**.xls'
+      - 'grade_picks.py'
 
 # Gives the script permission to save the JSON file back to the repository
 permissions:
