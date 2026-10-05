@@ -1,5 +1,5 @@
 {
-    "latest_week": "2",
+    "latest_week": "4",
     "weeks": {
         "2": {
             "title": "NFL Week 2",
@@ -1386,6 +1386,2754 @@
                     "score": 0,
                     "tie_breaker": 0,
                     "picks": []
+                }
+            ]
+        },
+        "4": {
+            "title": "NFL Week 4",
+            "week_num": 4,
+            "standings": [
+                {
+                    "rank": 1,
+                    "name": "Mellie O.",
+                    "score": 11,
+                    "tie_breaker": 45,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 2,
+                    "name": "TJ",
+                    "score": 11,
+                    "tie_breaker": 52,
+                    "picks": [
+                        {
+                            "team": "Browns",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 3,
+                    "name": "TheJP",
+                    "score": 11,
+                    "tie_breaker": 48,
+                    "picks": [
+                        {
+                            "team": "Browns",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cardinals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 4,
+                    "name": "Doc",
+                    "score": 10,
+                    "tie_breaker": 48,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cardinals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 5,
+                    "name": "SMAR",
+                    "score": 10,
+                    "tie_breaker": 47,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 6,
+                    "name": "Sandy & Omar",
+                    "score": 10,
+                    "tie_breaker": 48,
+                    "picks": [
+                        {
+                            "team": "Browns",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cardinals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 7,
+                    "name": "Earl",
+                    "score": 10,
+                    "tie_breaker": 47,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cardinals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 8,
+                    "name": "Chib",
+                    "score": 10,
+                    "tie_breaker": 49,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cardinals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Falcons",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 9,
+                    "name": "SalmonHo",
+                    "score": 10,
+                    "tie_breaker": 49,
+                    "picks": [
+                        {
+                            "team": "Browns",
+                            "correct": true
+                        },
+                        {
+                            "team": "Commanskins",
+                            "correct": false
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 10,
+                    "name": "Stu",
+                    "score": 10,
+                    "tie_breaker": 44,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cardinals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bucs",
+                            "correct": false
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 11,
+                    "name": "Jeff",
+                    "score": 10,
+                    "tie_breaker": 54,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Commanskins",
+                            "correct": false
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 12,
+                    "name": "Jenn",
+                    "score": 10,
+                    "tie_breaker": 48,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Jets",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 13,
+                    "name": "Thesaraus",
+                    "score": 9,
+                    "tie_breaker": 51,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Commanskins",
+                            "correct": false
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cardinals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 14,
+                    "name": "Des",
+                    "score": 9,
+                    "tie_breaker": 48,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Falcons",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 15,
+                    "name": "Manny",
+                    "score": 9,
+                    "tie_breaker": 49,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "Boncos",
+                            "correct": false
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 16,
+                    "name": "Nation",
+                    "score": 9,
+                    "tie_breaker": 40,
+                    "picks": [
+                        {
+                            "team": "Browns",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cardinals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 17,
+                    "name": "Spoonacus",
+                    "score": 8,
+                    "tie_breaker": 45,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cardinals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bucs",
+                            "correct": false
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chargers",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 18,
+                    "name": "Drewskiii",
+                    "score": 8,
+                    "tie_breaker": 54,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Commanskins",
+                            "correct": false
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": true
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Dolphins",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Falcons",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 19,
+                    "name": "THE LAKE CREW",
+                    "score": 8,
+                    "tie_breaker": 43,
+                    "picks": [
+                        {
+                            "team": "Steelers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        },
+                        {
+                            "team": "Packers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": true
+                        },
+                        {
+                            "team": "Boncos",
+                            "correct": false
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        }
+                    ]
+                }
+            ]
+        },
+        "3": {
+            "title": "NFL Week 3",
+            "week_num": 3,
+            "standings": [
+                {
+                    "rank": 1,
+                    "name": "Spoonacus",
+                    "score": 11,
+                    "tie_breaker": 49,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Steelers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bucs",
+                            "correct": false
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": true
+                        },
+                        {
+                            "team": "Broncos",
+                            "correct": true
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 2,
+                    "name": "Doc",
+                    "score": 9,
+                    "tie_breaker": 40,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 3,
+                    "name": "Thesaraus",
+                    "score": 9,
+                    "tie_breaker": 44,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Broncos",
+                            "correct": true
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 4,
+                    "name": "SMAR",
+                    "score": 9,
+                    "tie_breaker": 38,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Patriots",
+                            "correct": false
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 5,
+                    "name": "Chib",
+                    "score": 9,
+                    "tie_breaker": 49,
+                    "picks": [
+                        {
+                            "team": "Falcons",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bucs",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": false
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 6,
+                    "name": "THE LAKE CREW",
+                    "score": 9,
+                    "tie_breaker": 43,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Patriots",
+                            "correct": false
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Steelers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Broncos",
+                            "correct": true
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 7,
+                    "name": "TheJP",
+                    "score": 9,
+                    "tie_breaker": 45,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Broncos",
+                            "correct": true
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 8,
+                    "name": "Des",
+                    "score": 8,
+                    "tie_breaker": 41,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 9,
+                    "name": "Earl",
+                    "score": 8,
+                    "tie_breaker": 41,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Patriots",
+                            "correct": false
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 10,
+                    "name": "Drewskii",
+                    "score": 8,
+                    "tie_breaker": 33,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Browns",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Patriots",
+                            "correct": false
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Titans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bucs",
+                            "correct": false
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 11,
+                    "name": "STU",
+                    "score": 8,
+                    "tie_breaker": 42,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Patriots",
+                            "correct": false
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bears",
+                            "correct": true
+                        }
+                    ]
+                },
+                {
+                    "rank": 12,
+                    "name": "Jenn",
+                    "score": 8,
+                    "tie_breaker": 48,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Browns",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bucs",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 13,
+                    "name": "SalmonHo",
+                    "score": 7,
+                    "tie_breaker": 49,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Giants",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 14,
+                    "name": "Mellie O.",
+                    "score": 7,
+                    "tie_breaker": 44,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Titans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Steelers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 15,
+                    "name": "TJ",
+                    "score": 7,
+                    "tie_breaker": 52,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Browns",
+                            "correct": true
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Titans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bucs",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": false
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": true
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 16,
+                    "name": "Jeff",
+                    "score": 7,
+                    "tie_breaker": 54,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Colts",
+                            "correct": true
+                        },
+                        {
+                            "team": "Patriots",
+                            "correct": false
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Titans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Steelers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 17,
+                    "name": "Sandy & Omar",
+                    "score": 6,
+                    "tie_breaker": 42,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Jaguars",
+                            "correct": true
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Titans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Vikings",
+                            "correct": true
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": false
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Rams",
+                            "correct": false
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 18,
+                    "name": "Manny",
+                    "score": 6,
+                    "tie_breaker": 44,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Patriots",
+                            "correct": false
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Titans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bucs",
+                            "correct": false
+                        },
+                        {
+                            "team": "Ravens",
+                            "correct": true
+                        },
+                        {
+                            "team": "Saints",
+                            "correct": false
+                        },
+                        {
+                            "team": "Broncos",
+                            "correct": true
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
+                },
+                {
+                    "rank": 19,
+                    "name": "Nation",
+                    "score": 6,
+                    "tie_breaker": 38,
+                    "picks": [
+                        {
+                            "team": "Packers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bills",
+                            "correct": true
+                        },
+                        {
+                            "team": "Panthers",
+                            "correct": false
+                        },
+                        {
+                            "team": "Lions",
+                            "correct": true
+                        },
+                        {
+                            "team": "Texans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Patriots",
+                            "correct": false
+                        },
+                        {
+                            "team": "Chiefs",
+                            "correct": true
+                        },
+                        {
+                            "team": "Titans",
+                            "correct": false
+                        },
+                        {
+                            "team": "Bengals",
+                            "correct": false
+                        },
+                        {
+                            "team": "Seahawks",
+                            "correct": false
+                        },
+                        {
+                            "team": "49ers",
+                            "correct": true
+                        },
+                        {
+                            "team": "Bucs",
+                            "correct": false
+                        },
+                        {
+                            "team": "Cowboys",
+                            "correct": false
+                        },
+                        {
+                            "team": "Raiders",
+                            "correct": true
+                        },
+                        {
+                            "team": "Broncos",
+                            "correct": true
+                        },
+                        {
+                            "team": "Eagles",
+                            "correct": false
+                        }
+                    ]
                 }
             ]
         },
