@@ -4,21 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NFL Pool Leaderboard</title>
-    <!-- Imports our styling tools -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-200 text-gray-900 p-4 font-sans flex justify-center mt-10">
     
-    <!-- The main leaderboard card -->
     <div class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
         
-        <!-- Header Section -->
         <div class="bg-green-700 text-white p-6 text-center">
             <h1 class="text-3xl font-bold">NFL Pick'em</h1>
-            <p class="text-green-200 mt-1">Week 1 Standings</p>
+            <!-- The ID here lets us update the week name automatically -->
+            <p id="week-title" class="text-green-200 mt-1">Loading week...</p>
         </div>
         
-        <!-- Table Section -->
         <div class="p-4">
             <table class="w-full text-left">
                 <thead>
@@ -28,24 +25,12 @@
                         <th class="py-2 font-semibold text-right">Picks</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Player 1 -->
-                    <tr class="border-b border-gray-100">
-                        <td class="py-3 font-bold text-lg text-gray-700">1</td>
-                        <td class="py-3 font-semibold text-gray-800">Dave</td>
-                        <td class="py-3 font-bold text-right text-green-600">11</td>
-                    </tr>
-                    <!-- Player 2 -->
-                    <tr class="border-b border-gray-100">
-                        <td class="py-3 font-bold text-lg text-gray-700">2</td>
-                        <td class="py-3 font-semibold text-gray-800">Sarah</td>
-                        <td class="py-3 font-bold text-right text-green-600">9</td>
-                    </tr>
-                    <!-- Player 3 -->
+                <!-- The ID here is where the JavaScript injects the rows -->
+                <tbody id="leaderboard-body">
                     <tr>
-                        <td class="py-3 font-bold text-lg text-gray-700">3</td>
-                        <td class="py-3 font-semibold text-gray-800">Mike</td>
-                        <td class="py-3 font-bold text-right text-green-600">7</td>
+                        <td colspan="3" class="text-center py-6 text-gray-500 animate-pulse">
+                            Loading standings...
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -53,5 +38,44 @@
         
     </div>
 
+    <script>
+        // This function fetches the JSON file and builds the table
+        async function loadStandings() {
+            try {
+                // The ?t= trick prevents the phone from caching old scores
+                const response = await fetch('standings.json?t=' + new Date().getTime());
+                
+                if (!response.ok) {
+                    throw new Error("Data not found");
+                }
+                
+                const data = await response.json();
+                
+                // Update the title with the week name from the file
+                document.getElementById('week-title').innerText = data.week + ' Standings';
+                
+                const tbody = document.getElementById('leaderboard-body');
+                tbody.innerHTML = ''; // Clear the loading text
+                
+                // Loop through every player and create a row
+                data.standings.forEach(player => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-gray-100";
+                    tr.innerHTML = `
+                        <td class="py-3 font-bold text-lg text-gray-700">${player.rank}</td>
+                        <td class="py-3 font-semibold text-gray-800">${player.name}</td>
+                        <td class="py-3 font-bold text-right text-green-600">${player.score}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                document.getElementById('leaderboard-body').innerHTML = 
+                    `<tr><td colspan="3" class="text-center py-4 text-red-500">Waiting for first upload...</td></tr>`;
+            }
+        }
+        
+        // Run the function as soon as the app opens
+        window.onload = loadStandings;
+    </script>
 </body>
 </html>
