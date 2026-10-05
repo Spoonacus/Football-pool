@@ -37,9 +37,10 @@ for file in sorted(excel_files):
     except ValueError:
         continue
 
-    df = pd.read_excel(file).dropna(how='all', axis=1)
+    # REMOVED the aggressive .dropna() that was accidentally deleting unpicked teams
+    df = pd.read_excel(file)
     
-    # Smart TB Column Finder (Ignores accidental blank columns)
+    # Smart TB Column Finder
     tb_col = None
     for c in df.columns:
         cl = str(c).lower().strip()
@@ -47,7 +48,9 @@ for file in sorted(excel_files):
             tb_col = c
             break
     if tb_col is None and len(df.columns) > 0:
-        tb_col = df.columns[-1]
+        valid_cols = [c for c in df.columns if not str(c).startswith('Unnamed')]
+        if valid_cols:
+            tb_col = valid_cols[-1]
     
     # Fetch ESPN Data
     api_url = f"http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week={week_num}"
