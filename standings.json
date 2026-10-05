@@ -1,119 +1,119 @@
 {
-    "week": "NFL Week 3 FINAL",
+    "week": "NFL Week 4",
     "standings": [
         {
             "rank": 1,
-            "name": "Doc",
-            "score": 16,
-            "tie_breaker": 40
+            "name": "Mellie O.",
+            "score": 11,
+            "tie_breaker": 45
         },
         {
             "rank": 2,
-            "name": "Thesaraus",
-            "score": 16,
-            "tie_breaker": 44
+            "name": "TJ",
+            "score": 11,
+            "tie_breaker": 52
         },
         {
             "rank": 3,
-            "name": "SMAR",
-            "score": 16,
-            "tie_breaker": 38
+            "name": "TheJP",
+            "score": 11,
+            "tie_breaker": 48
         },
         {
             "rank": 4,
-            "name": "Sandy & Omar",
-            "score": 16,
-            "tie_breaker": 42
+            "name": "Doc",
+            "score": 10,
+            "tie_breaker": 48
         },
         {
             "rank": 5,
-            "name": "Des",
-            "score": 16,
-            "tie_breaker": 41
+            "name": "SMAR",
+            "score": 10,
+            "tie_breaker": 47
         },
         {
             "rank": 6,
-            "name": "Earl",
-            "score": 16,
-            "tie_breaker": 41
+            "name": "Sandy & Omar",
+            "score": 10,
+            "tie_breaker": 48
         },
         {
             "rank": 7,
-            "name": "Spoonacus",
-            "score": 16,
-            "tie_breaker": 49
+            "name": "Earl",
+            "score": 10,
+            "tie_breaker": 47
         },
         {
             "rank": 8,
-            "name": "Drewskii",
-            "score": 16,
-            "tie_breaker": 33
+            "name": "Chib",
+            "score": 10,
+            "tie_breaker": 49
         },
         {
             "rank": 9,
-            "name": "Chib",
-            "score": 16,
+            "name": "SalmonHo",
+            "score": 10,
             "tie_breaker": 49
         },
         {
             "rank": 10,
-            "name": "Mellie O.",
-            "score": 16,
+            "name": "Stu",
+            "score": 10,
             "tie_breaker": 44
         },
         {
             "rank": 11,
-            "name": "Manny",
-            "score": 16,
-            "tie_breaker": 44
-        },
-        {
-            "rank": 12,
-            "name": "THE LAKE CREW",
-            "score": 16,
-            "tie_breaker": 43
-        },
-        {
-            "rank": 13,
-            "name": "Nation",
-            "score": 16,
-            "tie_breaker": 38
-        },
-        {
-            "rank": 14,
-            "name": "TJ",
-            "score": 16,
-            "tie_breaker": 52
-        },
-        {
-            "rank": 15,
-            "name": "STU",
-            "score": 16,
-            "tie_breaker": 42
-        },
-        {
-            "rank": 16,
-            "name": "TheJP",
-            "score": 16,
-            "tie_breaker": 45
-        },
-        {
-            "rank": 17,
             "name": "Jeff",
-            "score": 16,
+            "score": 10,
             "tie_breaker": 54
         },
         {
-            "rank": 18,
+            "rank": 12,
             "name": "Jenn",
-            "score": 16,
+            "score": 10,
             "tie_breaker": 48
         },
         {
-            "rank": 19,
-            "name": "SalmonHo",
-            "score": 15,
+            "rank": 13,
+            "name": "Thesaraus",
+            "score": 9,
+            "tie_breaker": 51
+        },
+        {
+            "rank": 14,
+            "name": "Des",
+            "score": 9,
+            "tie_breaker": 48
+        },
+        {
+            "rank": 15,
+            "name": "Manny",
+            "score": 9,
             "tie_breaker": 49
+        },
+        {
+            "rank": 16,
+            "name": "Nation",
+            "score": 9,
+            "tie_breaker": 40
+        },
+        {
+            "rank": 17,
+            "name": "Spoonacus",
+            "score": 8,
+            "tie_breaker": 45
+        },
+        {
+            "rank": 18,
+            "name": "Drewskiii",
+            "score": 8,
+            "tie_breaker": 54
+        },
+        {
+            "rank": 19,
+            "name": "THE LAKE CREW",
+            "score": 8,
+            "tie_breaker": 43
         }
     ]
 }
