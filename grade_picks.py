@@ -121,6 +121,10 @@ for file in sorted(excel_files):
                     status_class = "missing"
                     
             player_picks.append({
+                "home": game['home'],
+                "away": game['away'],
+                "home_logo": game['home_logo'],
+                "away_logo": game['away_logo'],
                 "pick": pick_abbr,
                 "logo": pick_logo,
                 "status": status_class
@@ -137,7 +141,6 @@ for file in sorted(excel_files):
 
 sorted_weeks = sorted(all_results.keys(), key=lambda x: int(x.replace("Week ", "")), reverse=True)
 
-# Generate dropdown filter options
 dropdown_options = ""
 for w in sorted_weeks:
     w_id = w.replace(" ", "-")
@@ -160,40 +163,58 @@ html_content = f"""<!DOCTYPE html>
         .warning-banner {{ background-color: #ffbd45; color: #000; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
         .warning-banner small {{ font-weight: normal; display: block; margin-top: 5px; }}
         
-        .week-container {{ background: #ffffff; padding: 15px 0 0 0; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }}
-        
-        .week-header-bar {{ display: flex; justify-content: space-between; align-items: center; padding: 0 15px 10px 15px; border-bottom: 2px solid #f0f2f6; }}
-        .week-header-bar h2 {{ margin: 0; color: #000; font-size: 1.3rem; }}
+        .week-container {{ margin-bottom: 30px; }}
+        .week-header-bar {{ display: flex; justify-content: space-between; align-items: center; padding: 0 5px 10px 5px; border-bottom: 2px solid #ddd; margin-bottom: 15px; }}
+        .week-header-bar h2 {{ margin: 0; color: #000; font-size: 1.4rem; }}
         .expand-btn {{ background: #e6f4ea; color: #137333; border: 1px solid #c3e6cb; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; outline: none; }}
-        .instruction-text {{ font-size: 0.8rem; color: #888; padding: 10px 15px; font-style: italic; }}
         
-        /* Horizontal Scroll Framework */
+        /* ------------------------- */
+        /* VIEW 1: ACCORDION LIST    */
+        /* ------------------------- */
+        details.player-card {{ background: #fff; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }}
+        details.player-card summary {{ padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; }}
+        details.player-card summary::-webkit-details-marker {{ display: none; }}
+        details.player-card summary:hover {{ background-color: #f8f9fa; }}
+        details.player-card[open] summary {{ border-bottom: 1px solid #eee; background-color: #fafafa; }}
+        
+        .picks-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; background: #fafafa; }}
+        
+        .acc-card {{ display: flex; flex-direction: column; align-items: center; padding: 10px; border-radius: 8px; border: 1px solid #ccc; text-align: center; background-color: #fff; }}
+        .acc-card .logos {{ display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }}
+        .acc-card .logos img {{ width: 28px; height: 28px; object-fit: contain; }}
+        .acc-card .teams {{ font-size: 0.8rem; color: #555; margin-bottom: 8px; font-weight: bold; }}
+        .acc-card .pick-text {{ font-size: 0.9rem; font-weight: 900; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; }}
+        
+        .acc-card.win {{ background-color: #e6f4ea; border-color: #137333; }}
+        .acc-card.win .pick-text {{ color: #137333; }}
+        .acc-card.loss, .acc-card.missing {{ background-color: #fce8e6; border-color: #c5221f; }}
+        .acc-card.loss .pick-text, .acc-card.missing .pick-text {{ color: #c5221f; }}
+        .acc-card.pending {{ background-color: #fff; border-color: #dadce0; }}
+        .acc-card.pending .pick-text {{ color: #5f6368; }}
+
+        /* ------------------------- */
+        /* VIEW 2: HORIZONTAL TABLE  */
+        /* ------------------------- */
+        .table-view {{ background: #ffffff; padding: 10px 0 0 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none; }}
+        .instruction-text {{ font-size: 0.8rem; color: #888; padding: 0 15px 10px 15px; font-style: italic; }}
         .horizontal-scroll-area {{ overflow-x: auto; white-space: nowrap; padding-bottom: 15px; }}
         
-        /* Flex Rows */
-        .grid-row {{ display: flex; width: max-content; min-width: 100%; border-bottom: 1px solid #f0f2f6; cursor: pointer; background-color: #fff; transition: background-color 0.2s; }}
+        .grid-row {{ display: flex; width: max-content; min-width: 100%; border-bottom: 1px solid #f0f2f6; background-color: #fff; }}
         .grid-row:hover {{ background-color: #f8f9fa; }}
-        .header-row {{ background-color: #fafafa; cursor: default; border-bottom: 2px solid #e0e0e0; }}
-        .header-row:hover {{ background-color: #fafafa; }}
+        .header-row {{ background-color: #fafafa; border-bottom: 2px solid #e0e0e0; }}
         
-        /* Sticky Left Columns */
         .locked-cols {{ position: sticky; left: 0; z-index: 2; display: flex; align-items: center; background-color: inherit; border-right: 2px solid #e0e0e0; }}
         .col-name {{ width: 110px; padding: 12px 10px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
         .col-wins {{ width: 45px; padding: 12px 10px; font-weight: 900; font-size: 1.1rem; text-align: center; }}
         .header-row .col-name, .header-row .col-wins {{ font-size: 0.8rem; color: #555; text-transform: uppercase; font-weight: normal; }}
         
-        /* Scrolling Game Columns */
         .scroll-cols {{ display: flex; align-items: center; }}
-        .player-row.collapsed .scroll-cols {{ display: none; }}
-        
         .game-cell {{ width: 95px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }}
         
-        /* Matchup Header Styling */
         .matchup-logos {{ display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 4px; }}
         .matchup-logos img {{ width: 24px; height: 24px; object-fit: contain; }}
         .matchup-text {{ color: #555; font-size: 0.75rem; font-weight: bold; }}
         
-        /* Pick Pill Styling */
         .pick-box {{ display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; font-weight: 800; border-radius: 6px; padding: 6px 8px; width: 85px; box-sizing: border-box; }}
         .pick-box img {{ width: 22px; height: 22px; object-fit: contain; border-radius: 4px; }}
         
@@ -204,27 +225,31 @@ html_content = f"""<!DOCTYPE html>
     </style>
     
     <script>
-        function toggleRow(row) {{
-            row.classList.toggle('collapsed');
-        }}
-        
-        function toggleWeek(btn) {{
+        function toggleViewMode(btn) {{
             const container = btn.closest('.week-container');
-            const rows = container.querySelectorAll('.player-row');
+            const accView = container.querySelector('.accordion-view');
+            const tblView = container.querySelector('.table-view');
             const isExpanding = btn.innerText === "Expand All";
             
-            rows.forEach(row => {{
-                if (isExpanding) {{
-                    row.classList.remove('collapsed');
-                }} else {{
-                    row.classList.add('collapsed');
-                }}
-            }});
-            
-            btn.innerText = isExpanding ? "Collapse All" : "Expand All";
-            btn.style.backgroundColor = isExpanding ? "#fce8e6" : "#e6f4ea";
-            btn.style.color = isExpanding ? "#c5221f" : "#137333";
-            btn.style.borderColor = isExpanding ? "#f5c6cb" : "#c3e6cb";
+            if (isExpanding) {{
+                accView.style.display = 'none';
+                tblView.style.display = 'block';
+                btn.innerText = "Collapse All";
+                btn.style.backgroundColor = "#fce8e6";
+                btn.style.color = "#c5221f";
+                btn.style.borderColor = "#f5c6cb";
+            }} else {{
+                accView.style.display = 'block';
+                tblView.style.display = 'none';
+                btn.innerText = "Expand All";
+                btn.style.backgroundColor = "#e6f4ea";
+                btn.style.color = "#137333";
+                btn.style.borderColor = "#c3e6cb";
+                
+                // Close accordions when returning to list view
+                const details = accView.querySelectorAll('details');
+                details.forEach(d => d.removeAttribute('open'));
+            }}
         }}
         
         function filterWeek() {{
@@ -240,7 +265,6 @@ html_content = f"""<!DOCTYPE html>
             }});
         }}
         
-        // Run the filter automatically on page load to hide older weeks
         window.onload = function() {{
             filterWeek();
         }};
@@ -270,77 +294,112 @@ for week_key in sorted_weeks:
     <div class='week-container' id="{week_id}">
         <div class="week-header-bar">
             <h2>{week_key}</h2>
-            <button class="expand-btn" onclick="toggleWeek(this)">Expand All</button>
+            <button class="expand-btn" onclick="toggleViewMode(this)">Expand All</button>
         </div>
-        <div class="instruction-text">Tap any player's row to view their picks. Scroll right to see all games.</div>
-        <div class="horizontal-scroll-area">
+        
+        <!-- VIEW 1: ACCORDION LIST -->
+        <div class="accordion-view">
+    """
+    
+    for s in scores:
+        html_content += f"""
+            <details class="player-card">
+                <summary>
+                    <span style="font-size: 1.1rem; color: #333;">{s['Player']}</span>
+                    <span style="font-size: 1.1rem; color: #000;">{s['Wins']} Wins</span>
+                </summary>
+                <div class="picks-grid">
+        """
+        for p in s['Picks']:
+            pick_text = f"Picked: {p['pick']}" if p['pick'] else "NO PICK"
+            status = p['status']
             
-            <!-- Header Row with Matchups -->
-            <div class="grid-row header-row">
-                <div class="locked-cols">
-                    <div class="col-name">Player</div>
-                    <div class="col-wins">Wins</div>
+            html_content += f"""
+                    <div class="acc-card {status}">
+                        <div class="logos">
+                            <img src="{p['away_logo']}" title="{p['away']}"> 
+                            <span style="font-size:0.8rem; color:#888;">@</span> 
+                            <img src="{p['home_logo']}" title="{p['home']}">
+                        </div>
+                        <div class="teams">{p['away']} @ {p['home']}</div>
+                        <div class="pick-text">{pick_text}</div>
+                    </div>
+            """
+        html_content += """
                 </div>
-                <div class="scroll-cols">
+            </details>
+        """
+        
+    html_content += """
+        </div>
+        
+        <!-- VIEW 2: HORIZONTAL TABLE (Hidden by Default) -->
+        <div class="table-view">
+            <div class="instruction-text">Scroll right to view all matchups.</div>
+            <div class="horizontal-scroll-area">
+                <div class="grid-row header-row">
+                    <div class="locked-cols">
+                        <div class="col-name">Player</div>
+                        <div class="col-wins">Wins</div>
+                    </div>
+                    <div class="scroll-cols">
     """
     
     for g in api_games:
         html_content += f"""
-                    <div class="game-cell">
-                        <div class="matchup-logos">
-                            <img src="{g['away_logo']}" title="{g['away']}"> 
-                            <span style="color: #888; font-size: 0.7rem;">@</span> 
-                            <img src="{g['home_logo']}" title="{g['home']}">
+                        <div class="game-cell">
+                            <div class="matchup-logos">
+                                <img src="{g['away_logo']}" title="{g['away']}"> 
+                                <span style="color: #888; font-size: 0.7rem;">@</span> 
+                                <img src="{g['home_logo']}" title="{g['home']}">
+                            </div>
+                            <div class="matchup-text">{g['away']} @ {g['home']}</div>
                         </div>
-                        <div class="matchup-text">{g['away']} @ {g['home']}</div>
-                    </div>
         """
         
     html_content += """
+                    </div>
                 </div>
-            </div>
     """
     
-    # Player Rows (Collapsed by default)
     for s in scores:
         html_content += f"""
-            <div class="grid-row player-row collapsed" onclick="toggleRow(this)">
-                <div class="locked-cols">
-                    <div class="col-name">{s['Player']}</div>
-                    <div class="col-wins">{s['Wins']}</div>
-                </div>
-                <div class="scroll-cols">
+                <div class="grid-row player-row">
+                    <div class="locked-cols">
+                        <div class="col-name">{s['Player']}</div>
+                        <div class="col-wins">{s['Wins']}</div>
+                    </div>
+                    <div class="scroll-cols">
         """
-        
         for p in s['Picks']:
             if p['pick']:
                 html_content += f"""
-                    <div class="game-cell">
-                        <div class="pick-box {p['status']}">
-                            <img src="{p['logo']}"> <span>{p['pick']}</span>
+                        <div class="game-cell">
+                            <div class="pick-box {p['status']}">
+                                <img src="{p['logo']}"> <span>{p['pick']}</span>
+                            </div>
                         </div>
-                    </div>
                 """
             else:
                 html_content += """
-                    <div class="game-cell">
-                        <div class="pick-box missing">-</div>
-                    </div>
+                        <div class="game-cell">
+                            <div class="pick-box missing">-</div>
+                        </div>
                 """
                 
         html_content += """
+                    </div>
                 </div>
-            </div>
         """
         
     html_content += """
+            </div>
         </div>
     </div>
     """
 
 html_content += "</body></html>"
 
-# Write the web page for GitHub Pages to host
 with open("index.html", "w") as f:
     f.write(html_content)
     
