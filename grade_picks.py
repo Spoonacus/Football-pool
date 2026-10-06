@@ -221,4 +221,247 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .acc-card .pick-text { font-size: 0.9rem; font-weight: 900; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; }
         .acc-card.win { background-color: #e6f4ea; border-color: #137333; }
         .acc-card.win .pick-text { color: #137333; }
-        .acc-card.loss, .acc-card.missing { background-color: #fce8e6
+        .acc-card.loss, .acc-card.missing { background-color: #fce8e6; border-color: #c5221f; }
+        .acc-card.loss .pick-text, .acc-card.missing .pick-text { color: #c5221f; }
+        .acc-card.pending { background-color: #fff; border-color: #dadce0; }
+        .acc-card.pending .pick-text { color: #5f6368; }
+        .table-view { background: #ffffff; padding: 10px 0 0 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none; }
+        .instruction-text { font-size: 0.8rem; color: #888; padding: 0 15px 10px 15px; font-style: italic; }
+        .horizontal-scroll-area { overflow-x: auto; white-space: nowrap; padding-bottom: 15px; }
+        .grid-row { display: flex; width: max-content; min-width: 100%; border-bottom: 1px solid #f0f2f6; background-color: #fff; }
+        .grid-row:hover { background-color: #f8f9fa; }
+        .header-row { background-color: #fafafa; border-bottom: 2px solid #e0e0e0; }
+        .locked-cols { position: sticky; left: 0; z-index: 2; display: flex; align-items: center; background-color: inherit; border-right: 2px solid #e0e0e0; }
+        .col-name { width: 95px; padding: 12px 8px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .col-wins { width: 40px; padding: 12px 4px; font-weight: 900; font-size: 1.05rem; text-align: center; }
+        .col-tb { width: 45px; padding: 12px 4px; font-weight: bold; font-size: 0.95rem; text-align: center; color: #666; }
+        .header-row .col-name, .header-row .col-wins, .header-row .col-tb { font-size: 0.75rem; color: #555; text-transform: uppercase; font-weight: normal; }
+        .scroll-cols { display: flex; align-items: center; }
+        .game-cell { width: 110px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .matchup-logos { display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 2px; }
+        .matchup-logos img { width: 24px; height: 24px; object-fit: contain; }
+        .matchup-text { color: #555; font-size: 0.75rem; font-weight: bold; }
+        .pick-box { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; font-weight: 800; border-radius: 6px; padding: 6px 8px; width: 85px; box-sizing: border-box; }
+        .pick-box img { width: 22px; height: 22px; object-fit: contain; border-radius: 4px; }
+        .pick-box.win { background-color: #e6f4ea; color: #137333; border: 1px solid #137333; }
+        .pick-box.loss { background-color: #fce8e6; color: #c5221f; border: 1px solid #c5221f; }
+        .pick-box.pending { background-color: #f1f3f4; color: #5f6368; border: 1px solid #dadce0; }
+        .pick-box.missing { background-color: #ffffff; color: #ccc; border: 1px dashed #ccc; font-weight: normal; }
+        .status-pre { color: #888; font-size: 0.75rem; }
+        .status-in { color: #d93025; font-size: 0.75rem; font-weight: bold; animation: pulse 2s infinite; }
+        .status-post { color: #111; font-size: 0.75rem; font-weight: bold; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+    </style>
+    <script>
+        function toggleViewMode(btn) {
+            const container = btn.closest('.week-container');
+            const accView = container.querySelector('.accordion-view');
+            const tblView = container.querySelector('.table-view');
+            const isExpanding = btn.innerText === "Expand All";
+            if (isExpanding) {
+                accView.style.display = 'none';
+                tblView.style.display = 'block';
+                btn.innerText = "Collapse All";
+                btn.style.backgroundColor = "#fce8e6";
+                btn.style.color = "#c5221f";
+                btn.style.borderColor = "#f5c6cb";
+            } else {
+                accView.style.display = 'block';
+                tblView.style.display = 'none';
+                btn.innerText = "Expand All";
+                btn.style.backgroundColor = "#e6f4ea";
+                btn.style.color = "#137333";
+                btn.style.borderColor = "#c3e6cb";
+                const details = accView.querySelectorAll('details');
+                details.forEach(d => d.removeAttribute('open'));
+            }
+        }
+        function filterWeek(saveChoice = true) {
+            const selectEl = document.getElementById('week-filter');
+            const selected = selectEl.value;
+            if (saveChoice) { localStorage.setItem('pool_selected_week', selected); }
+            const containers = document.querySelectorAll('.week-container');
+            containers.forEach(container => {
+                if (selected === 'all' || container.id === selected) { container.style.display = 'block'; } 
+                else { container.style.display = 'none'; }
+            });
+        }
+        window.onload = function() {
+            const savedWeek = localStorage.getItem('pool_selected_week');
+            if (savedWeek && document.querySelector('#week-filter option[value="' + savedWeek + '"]')) {
+                document.getElementById('week-filter').value = savedWeek;
+            }
+            filterWeek(false);
+            setTimeout(function() { window.location.reload(); }, 60000);
+        };
+    </script>
+</head>
+<body>
+    <h1>🏈 Francis Fancy Bottoms Pickem Pool</h1>
+    <div class="last-updated">Auto-refreshes every 60s &bull; Scored: _UPDATE_TIME_</div>
+    <div class="filter-container">
+        <select id="week-filter" onchange="filterWeek(true)">
+            _DROPDOWN_OPTIONS_
+        </select>
+    </div>
+"""
+
+html_content = HTML_TEMPLATE.replace("_DROPDOWN_OPTIONS_", dropdown_options).replace("_UPDATE_TIME_", update_time_utc)
+
+if warnings:
+    html_content += "<div class='warning-banner'>⚠️ UPDATE THE OLDS DICTIONARY!"
+    for w in warnings:
+        html_content += f"<small>{w}</small>"
+    html_content += "</div>"
+
+for week_key in sorted_weeks:
+    week_id = week_key.replace(" ", "-")
+    week_data = all_results[week_key]
+    api_games = week_data["games"]
+    scores = week_data["scores"]
+    actual_tb = week_data["actual_tb"]
+    all_games_final = week_data["all_final"]
+    
+    banner_html = ""
+    if scores:
+        max_wins = scores[0]['Wins']
+        top_players = [s for s in scores if s['Wins'] == max_wins]
+        
+        if len(top_players) == 1:
+            win_p = top_players[0]
+            status_title = "WINNER" if all_games_final else "CURRENT LEADER"
+            banner_html += "<div class='winner-banner'>"
+            banner_html += f"<div class='title'>🏆 {status_title}</div>"
+            banner_html += f"<div class='players'>{win_p['Player']}</div>"
+            banner_html += f"<small>{max_wins} Correct Picks</small>"
+            banner_html += "</div>"
+        else:
+            if all_games_final:
+                for p in top_players:
+                    try:
+                        p['tb_diff'] = abs(float(p['TB']) - actual_tb)
+                    except:
+                        p['tb_diff'] = float('inf')
+                min_diff = min(p['tb_diff'] for p in top_players)
+                actual_winners = [p for p in top_players if p['tb_diff'] == min_diff]
+                
+                if len(actual_winners) == 1:
+                    win_p = actual_winners[0]
+                    banner_html += "<div class='winner-banner'>"
+                    banner_html += "<div class='title'>🏆 TIEBREAKER WINNER</div>"
+                    banner_html += f"<div class='players'>{win_p['Player']}</div>"
+                    banner_html += f"<small>{max_wins} Wins | Guessed {win_p['TB']} | Actual Score: {actual_tb}</small>"
+                    banner_html += "</div>"
+                else:
+                    banner_html += "<div class='winner-banner tie'>"
+                    banner_html += "<div class='title'>🤝 TIED FOR 1ST PLACE</div>"
+                    banner_html += "<div class='players'>"
+                    for p in actual_winners:
+                        banner_html += f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>"
+                    banner_html += "</div>"
+                    banner_html += f"<small>{max_wins} Wins | Actual Score: {actual_tb}</small>"
+                    banner_html += "</div>"
+            else:
+                banner_html += "<div class='winner-banner tie'>"
+                banner_html += "<div class='title'>🤝 TIED FOR 1ST PLACE</div>"
+                banner_html += "<div class='players'>"
+                for p in top_players:
+                    banner_html += f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>"
+                banner_html += "</div>"
+                banner_html += f"<small>{max_wins} Correct Picks so far</small>"
+                banner_html += "</div>"
+    
+    html_content += f"<div class='week-container' id='{week_id}'>"
+    html_content += "<div class='week-header-bar'>"
+    html_content += f"<h2>{week_key}</h2>"
+    html_content += "<button class='expand-btn' onclick='toggleViewMode(this)'>Expand All</button>"
+    html_content += "</div>"
+    html_content += banner_html
+    html_content += "<div class='accordion-view'>"
+    
+    for s in scores:
+        html_content += "<details class='player-card'>"
+        html_content += "<summary>"
+        html_content += f"<span style='font-size: 1.05rem; color: #333;'>{s['Player']}</span>"
+        html_content += f"<span style='font-size: 1.0rem; color: #000;'>{s['Wins']} Wins "
+        html_content += f"<span style='color:#888; font-size:0.85rem; margin-left:4px;'>(TB: {s['TB']})</span></span>"
+        html_content += "</summary>"
+        html_content += "<div class='picks-grid'>"
+        
+        for p in s['Picks']:
+            pick_text = f"Picked: {p['pick']}" if p['pick'] else "NO PICK"
+            status = p['status']
+            html_content += f"<div class='acc-card {status}'>"
+            html_content += "<div class='logos'>"
+            html_content += f"<img src='{p['away_logo']}' title='{p['away']}'> "
+            html_content += f"{p['score_str']} "
+            html_content += f"<img src='{p['home_logo']}' title='{p['home']}'>"
+            html_content += "</div>"
+            html_content += f"<div class='teams'>{p['away']} @ {p['home']}</div>"
+            html_content += f"<div class='{p['game_state_class']}' style='margin-bottom: 6px;'>{p['status_text']}</div>"
+            html_content += f"<div class='pick-text'>{pick_text}</div>"
+            html_content += "</div>"
+            
+        html_content += "</div>"
+        html_content += "</details>"
+        
+    html_content += "</div>"
+    
+    html_content += "<div class='table-view'>"
+    html_content += "<div class='instruction-text'>Scroll right to view all matchups.</div>"
+    html_content += "<div class='horizontal-scroll-area'>"
+    html_content += "<div class='grid-row header-row'>"
+    html_content += "<div class='locked-cols'>"
+    html_content += "<div class='col-name'>Player</div>"
+    html_content += "<div class='col-wins'>Wins</div>"
+    html_content += "<div class='col-tb'>TB</div>"
+    html_content += "</div>"
+    html_content += "<div class='scroll-cols'>"
+    
+    for g in api_games:
+        html_content += "<div class='game-cell'>"
+        html_content += "<div class='matchup-logos'>"
+        html_content += f"<img src='{g['away_logo']}' title='{g['away']}'> "
+        html_content += f"{g['score_str']} "
+        html_content += f"<img src='{g['home_logo']}' title='{g['home']}'>"
+        html_content += "</div>"
+        html_content += f"<div class='matchup-text'>{g['away']} @ {g['home']}</div>"
+        html_content += f"<div class='{g['status_class']}' style='margin-top: 2px;'>{g['status_text']}</div>"
+        html_content += "</div>"
+        
+    html_content += "</div>"
+    html_content += "</div>"
+    
+    for s in scores:
+        html_content += "<div class='grid-row player-row'>"
+        html_content += "<div class='locked-cols'>"
+        html_content += f"<div class='col-name'>{s['Player']}</div>"
+        html_content += f"<div class='col-wins'>{s['Wins']}</div>"
+        html_content += f"<div class='col-tb'>{s['TB']}</div>"
+        html_content += "</div>"
+        html_content += "<div class='scroll-cols'>"
+        
+        for p in s['Picks']:
+            if p['pick']:
+                html_content += "<div class='game-cell'>"
+                html_content += f"<div class='pick-box {p['status']}'>"
+                html_content += f"<img src='{p['logo']}'> <span>{p['pick']}</span>"
+                html_content += "</div>"
+                html_content += "</div>"
+            else:
+                html_content += "<div class='game-cell'>"
+                html_content += "<div class='pick-box missing'>-</div>"
+                html_content += "</div>"
+                
+        html_content += "</div>"
+        html_content += "</div>"
+        
+    html_content += "</div>"
+    html_content += "</div>"
+    html_content += "</div>"
+
+html_content += "</body></html>"
+
+with open("index.html", "w") as f:
+    f.write(html_content)
+    
