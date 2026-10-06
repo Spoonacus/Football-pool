@@ -10,7 +10,6 @@ on:
   schedule:
     - cron: '*/10 0-5,16-23 * * 0,1,4'
 
-# This block is required to give the robot permission to publish the website
 permissions:
   contents: write
   pages: write
@@ -54,4 +53,3 @@ jobs:
       - name: Deploy to Live Website
         id: deployment
         uses: actions/deploy-pages@v4
-        
