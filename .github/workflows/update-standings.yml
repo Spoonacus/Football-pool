@@ -8,10 +8,11 @@ on:
       - '**.xls'
       - 'grade_picks.py'
   schedule:
-    - cron: '*/10 0-5,16-23 * * 0,1,4'
+    # Runs every 10 mins on Sun, Mon, Tue, Thu, Fri (UTC) to cover all night games
+    - cron: '*/10 0-6,16-23 * * 0,1,2,4,5'
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -36,15 +37,6 @@ jobs:
 
       - name: Run Grading Script
         run: python grade_picks.py
-
-      - name: Save Backup to Repository
-        run: |
-          git config --global user.name "NFL-Bot"
-          git config --global user.email "bot@nflpool.local"
-          git add index.html
-          git commit -m "Auto-update standings" || true
-          git pull --rebase origin main || true
-          git push || true
 
       - name: Package Website
         uses: actions/upload-pages-artifact@v3
