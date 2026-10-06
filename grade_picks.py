@@ -1,6 +1,4 @@
-import os
 import glob
-import json
 import time
 import pandas as pd
 import requests
@@ -40,7 +38,6 @@ for file in sorted(excel_files):
 
     df = pd.read_excel(file)
     
-    # Smart TB Column Finder
     tb_col = None
     for c in df.columns:
         cl = str(c).lower().strip()
@@ -52,12 +49,11 @@ for file in sorted(excel_files):
         if valid_cols:
             tb_col = valid_cols[-1]
     
-    # Fetch ESPN Data
     api_url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week={week_num}"
     try:
         resp = requests.get(api_url)
         api_data = resp.json() if resp.status_code == 200 else {}
-    except:
+    except Exception:
         api_data = {}
         
     expected_games = len(api_data.get('events', []))
@@ -118,7 +114,7 @@ for file in sorted(excel_files):
             try:
                 tb_val = float(tb_val)
                 if tb_val.is_integer(): tb_val = int(tb_val)
-            except:
+            except ValueError:
                 tb_val = "N/A"
         else:
             tb_val = "N/A"
@@ -184,7 +180,7 @@ update_time_utc = time.strftime("%b %d, %I:%M %p UTC", time.gmtime())
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html>
 <head>
-    <title>Office Pick'em Pool</title>
+    <title>Francis Fancy Bottoms Pickem Pool</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body { font-family: -apple-system, sans-serif; margin: 0; padding: 15px; background-color: #f0f2f6; color: #31333F; }
@@ -293,7 +289,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </script>
 </head>
 <body>
-    <h1>🏈 Office Pick'em</h1>
+    <h1>🏈 Francis Fancy Bottoms Pickem Pool</h1>
     <div class="last-updated">Auto-refreshes every 60s &bull; Scored: _UPDATE_TIME_</div>
     <div class="filter-container">
         <select id="week-filter" onchange="filterWeek(true)">
@@ -326,137 +322,32 @@ for week_key in sorted_weeks:
         if len(top_players) == 1:
             win_p = top_players[0]
             status_title = "WINNER" if all_games_final else "CURRENT LEADER"
-            banner_html += "<div class='winner-banner'>"
-            banner_html += f"<div class='title'>🏆 {status_title}</div>"
-            banner_html += f"<div class='players'>{win_p['Player']}</div>"
-            banner_html += f"<small>{max_wins} Correct Picks</small>"
-            banner_html += "</div>"
+            banner_html += f"<div class='winner-banner'><div class='title'>🏆 {status_title}</div><div class='players'>{win_p['Player']}</div><small>{max_wins} Correct Picks</small></div>"
         else:
             if all_games_final:
                 for p in top_players:
                     try:
                         p['tb_diff'] = abs(float(p['TB']) - actual_tb)
-                    except:
+                    except Exception:
                         p['tb_diff'] = float('inf')
                 min_diff = min(p['tb_diff'] for p in top_players)
                 actual_winners = [p for p in top_players if p['tb_diff'] == min_diff]
                 
                 if len(actual_winners) == 1:
                     win_p = actual_winners[0]
-                    banner_html += "<div class='winner-banner'>"
-                    banner_html += "<div class='title'>🏆 TIEBREAKER WINNER</div>"
-                    banner_html += f"<div class='players'>{win_p['Player']}</div>"
-                    banner_html += f"<small>{max_wins} Wins | Guessed {win_p['TB']} | Actual Score: {actual_tb}</small>"
-                    banner_html += "</div>"
+                    banner_html += f"<div class='winner-banner'><div class='title'>🏆 TIEBREAKER WINNER</div><div class='players'>{win_p['Player']}</div><small>{max_wins} Wins | Guessed {win_p['TB']} | Actual Score: {actual_tb}</small></div>"
                 else:
-                    banner_html += "<div class='winner-banner tie'>"
-                    banner_html += "<div class='title'>🤝 TIED FOR 1ST PLACE</div>"
-                    banner_html += "<div class='players'>"
+                    banner_html += "<div class='winner-banner tie'><div class='title'>🤝 TIED FOR 1ST PLACE</div><div class='players'>"
                     for p in actual_winners:
                         banner_html += f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>"
-                    banner_html += "</div>"
-                    banner_html += f"<small>{max_wins} Wins | Actual Score: {actual_tb}</small>"
-                    banner_html += "</div>"
+                    banner_html += f"</div><small>{max_wins} Wins | Actual Score: {actual_tb}</small></div>"
             else:
-                banner_html += "<div class='winner-banner tie'>"
-                banner_html += "<div class='title'>🤝 TIED FOR 1ST PLACE</div>"
-                banner_html += "<div class='players'>"
+                banner_html += "<div class='winner-banner tie'><div class='title'>🤝 TIED FOR 1ST PLACE</div><div class='players'>"
                 for p in top_players:
                     banner_html += f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>"
-                banner_html += "</div>"
-                banner_html += f"<small>{max_wins} Correct Picks so far</small>"
-                banner_html += "</div>"
+                banner_html += f"</div><small>{max_wins} Correct Picks so far</small></div>"
     
-    html_content += f"<div class='week-container' id='{week_id}'>"
-    html_content += "<div class='week-header-bar'>"
-    html_content += f"<h2>{week_key}</h2>"
-    html_content += "<button class='expand-btn' onclick='toggleViewMode(this)'>Expand All</button>"
-    html_content += "</div>"
-    html_content += banner_html
-    html_content += "<div class='accordion-view'>"
+    html_content += f"<div class='week-container' id='{week_id}'><div class='week-header-bar'><h2>{week_key}</h2><button class='expand-btn' onclick='toggleViewMode(this)'>Expand All</button></div>{banner_html}<div class='accordion-view'>"
     
     for s in scores:
-        html_content += "<details class='player-card'>"
-        html_content += "<summary>"
-        html_content += f"<span style='font-size: 1.05rem; color: #333;'>{s['Player']}</span>"
-        html_content += f"<span style='font-size: 1.0rem; color: #000;'>{s['Wins']} Wins "
-        html_content += f"<span style='color:#888; font-size:0.85rem; margin-left:4px;'>(TB: {s['TB']})</span></span>"
-        html_content += "</summary>"
-        html_content += "<div class='picks-grid'>"
-        
-        for p in s['Picks']:
-            pick_text = f"Picked: {p['pick']}" if p['pick'] else "NO PICK"
-            status = p['status']
-            html_content += f"<div class='acc-card {status}'>"
-            html_content += "<div class='logos'>"
-            html_content += f"<img src='{p['away_logo']}' title='{p['away']}'> "
-            html_content += f"{p['score_str']} "
-            html_content += f"<img src='{p['home_logo']}' title='{p['home']}'>"
-            html_content += "</div>"
-            html_content += f"<div class='teams'>{p['away']} @ {p['home']}</div>"
-            html_content += f"<div class='{p['game_state_class']}' style='margin-bottom: 6px;'>{p['status_text']}</div>"
-            html_content += f"<div class='pick-text'>{pick_text}</div>"
-            html_content += "</div>"
-            
-        html_content += "</div>"
-        html_content += "</details>"
-        
-    html_content += "</div>"
-    
-    html_content += "<div class='table-view'>"
-    html_content += "<div class='instruction-text'>Scroll right to view all matchups.</div>"
-    html_content += "<div class='horizontal-scroll-area'>"
-    html_content += "<div class='grid-row header-row'>"
-    html_content += "<div class='locked-cols'>"
-    html_content += "<div class='col-name'>Player</div>"
-    html_content += "<div class='col-wins'>Wins</div>"
-    html_content += "<div class='col-tb'>TB</div>"
-    html_content += "</div>"
-    html_content += "<div class='scroll-cols'>"
-    
-    for g in api_games:
-        html_content += "<div class='game-cell'>"
-        html_content += "<div class='matchup-logos'>"
-        html_content += f"<img src='{g['away_logo']}' title='{g['away']}'> "
-        html_content += f"{g['score_str']} "
-        html_content += f"<img src='{g['home_logo']}' title='{g['home']}'>"
-        html_content += "</div>"
-        html_content += f"<div class='matchup-text'>{g['away']} @ {g['home']}</div>"
-        html_content += f"<div class='{g['status_class']}' style='margin-top: 2px;'>{g['status_text']}</div>"
-        html_content += "</div>"
-        
-    html_content += "</div>"
-    html_content += "</div>"
-    
-    for s in scores:
-        html_content += "<div class='grid-row player-row'>"
-        html_content += "<div class='locked-cols'>"
-        html_content += f"<div class='col-name'>{s['Player']}</div>"
-        html_content += f"<div class='col-wins'>{s['Wins']}</div>"
-        html_content += f"<div class='col-tb'>{s['TB']}</div>"
-        html_content += "</div>"
-        html_content += "<div class='scroll-cols'>"
-        
-        for p in s['Picks']:
-            if p['pick']:
-                html_content += "<div class='game-cell'>"
-                html_content += f"<div class='pick-box {p['status']}'>"
-                html_content += f"<img src='{p['logo']}'> <span>{p['pick']}</span>"
-                html_content += "</div>"
-                html_content += "</div>"
-            else:
-                html_content += "<div class='game-cell'>"
-                html_content += "<div class='pick-box missing'>-</div>"
-                html_content += "</div>"
-                
-        html_content += "</div>"
-        html_content += "</div>"
-        
-    html_content += "</div>"
-    html_content += "</div>"
-    html_content += "</div>"
-
-html_content += "</body></html>"
-
-with open("index.html", "w") as f:
-    f.write(html_content)
+        html_content += f"<details class='player-card'><summary><span style='font-size: 1.05rem; color: #333;'>{s['Player']}</span><span style='font-size: 1.0rem; color: #000;'>{s['Wins']} Wins <span style='color:#888; font-size:0.85rem; margin-left:4px;'>(TB: {s['TB']})</spa
