@@ -1,16 +1,16 @@
 {
   "name": "Francis Fancy Bottoms Pickem Pool",
   "short_name": "Pick'em",
-  "start_url": ".",
+  "start_url": "/Football-pool/",
   "display": "standalone",
   "background_color": "#f0f2f6",
   "theme_color": "#137333",
   "icons": [
     {
-      "src": "icon.png",
-      "sizes": "any",
+      "src": "/Football-pool/icon.png",
+      "sizes": "144x144 192x192 512x512 1024x1024",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
