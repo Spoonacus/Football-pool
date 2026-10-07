@@ -165,7 +165,6 @@ for file in sorted(excel_files):
                     
         week_scores.append({"Player": player_name, "Wins": score, "TB": tb_val, "Picks": player_picks})
     
-    week_scores = sorted(week_scores, key=lambda x: x['Wins'], reverse=True)
     last_api_game = sorted(api_games, key=lambda x: x['date'])[-1] if api_games else None
     actual_tb = last_api_game['total_score'] if last_api_game else 0
     all_games_final = all(g['state'] == 'post' for g in api_games) if api_games else False
@@ -175,7 +174,11 @@ for file in sorted(excel_files):
         "actual_tb": actual_tb, "all_final": all_games_final
     }
 
-sorted_weeks = sorted(all_results.keys(), key=lambda x: int(x.replace("Week ", "")), reverse=True)
+sorted_weeks = sorted(
+    all_results.keys(), 
+    key=lambda x: int(x.replace("Week ", "")), 
+    reverse=True
+)
 
 dropdown_options = ""
 for w in sorted_weeks:
@@ -185,134 +188,195 @@ dropdown_options += "<option value='all'>Show All Weeks</option>"
 
 update_time_utc = time.strftime("%b %d, %I:%M %p UTC", time.gmtime())
 
-HTML_TEMPLATE = """<!DOCTYPE html>
-<html>
-<head>
-    <title>Francis Fancy Bottoms Pickem Pool</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body { font-family: -apple-system, sans-serif; margin: 0; padding: 15px; background-color: #f0f2f6; color: #31333F; }
-        h1 { text-align: center; padding-bottom: 2px; font-size: 1.6rem; margin-bottom: 2px; }
-        .last-updated { text-align: center; font-size: 0.72rem; color: #888; margin-bottom: 15px; }
-        .filter-container { text-align: center; margin-bottom: 20px; }
-        select#week-filter { padding: 8px 16px; font-size: 1rem; border-radius: 8px; border: 1px solid #ccc; font-weight: bold; background: #fff; outline: none; }
-        .warning-banner { background-color: #ffbd45; color: #000; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .warning-banner small { font-weight: normal; display: block; margin-top: 5px; }
-        .week-container { margin-bottom: 30px; }
-        .week-header-bar { display: flex; justify-content: space-between; align-items: center; padding: 0 5px 10px 5px; border-bottom: 2px solid #ddd; margin-bottom: 15px; }
-        .week-header-bar h2 { margin: 0; color: #000; font-size: 1.4rem; }
-        .expand-btn { background: #e6f4ea; color: #137333; border: 1px solid #c3e6cb; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; outline: none; }
-        .winner-banner { background-color: #137333; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 0 0 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .winner-banner.tie { background-color: #0d652d; }
-        .winner-banner .title { font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; opacity: 0.9; }
-        .winner-banner .players { font-size: 1.15rem; font-weight: 900; line-height: 1.4; }
-        .winner-banner .players span { font-weight: normal; font-size: 0.95rem; opacity: 0.9; }
-        .winner-banner small { display: block; margin-top: 8px; opacity: 0.9; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; }
-        details.player-card { background: #fff; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
-        details.player-card summary { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; }
-        details.player-card summary::-webkit-details-marker { display: none; }
-        details.player-card summary:hover { background-color: #f8f9fa; }
-        details.player-card[open] summary { border-bottom: 1px solid #eee; background-color: #fafafa; }
-        .picks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; background: #fafafa; }
-        .acc-card { display: flex; flex-direction: column; align-items: center; padding: 10px; border-radius: 8px; border: 1px solid #ccc; text-align: center; background-color: #fff; }
-        .acc-card .logos { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; width: 100%; justify-content: center; }
-        .acc-card .logos img { width: 26px; height: 26px; object-fit: contain; }
-        .acc-card .teams { font-size: 0.75rem; color: #555; margin-bottom: 2px; font-weight: bold; }
-        .acc-card .pick-text { font-size: 0.9rem; font-weight: 900; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; }
-        .acc-card.win { background-color: #e6f4ea; border-color: #137333; }
-        .acc-card.win .pick-text { color: #137333; }
-        .acc-card.loss, .acc-card.missing { background-color: #fce8e6; border-color: #c5221f; }
-        .acc-card.loss .pick-text, .acc-card.missing .pick-text { color: #c5221f; }
-        .acc-card.pending { background-color: #fff; border-color: #dadce0; }
-        .acc-card.pending .pick-text { color: #5f6368; }
-        .table-view { background: #ffffff; padding: 10px 0 0 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none; }
-        .instruction-text { font-size: 0.8rem; color: #888; padding: 0 15px 10px 15px; font-style: italic; }
-        .horizontal-scroll-area { overflow-x: auto; white-space: nowrap; padding-bottom: 15px; }
-        .grid-row { display: flex; width: max-content; min-width: 100%; border-bottom: 1px solid #f0f2f6; background-color: #fff; }
-        .grid-row:hover { background-color: #f8f9fa; }
-        .header-row { background-color: #fafafa; border-bottom: 2px solid #e0e0e0; }
-        .locked-cols { position: sticky; left: 0; z-index: 2; display: flex; align-items: center; background-color: inherit; border-right: 2px solid #e0e0e0; }
-        .col-name { width: 95px; padding: 12px 8px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .col-wins { width: 40px; padding: 12px 4px; font-weight: 900; font-size: 1.05rem; text-align: center; }
-        .col-tb { width: 45px; padding: 12px 4px; font-weight: bold; font-size: 0.95rem; text-align: center; color: #666; }
-        .header-row .col-name, .header-row .col-wins, .header-row .col-tb { font-size: 0.75rem; color: #555; text-transform: uppercase; font-weight: normal; }
-        .scroll-cols { display: flex; align-items: center; }
-        .game-cell { width: 110px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .matchup-logos { display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 2px; }
-        .matchup-logos img { width: 24px; height: 24px; object-fit: contain; }
-        .matchup-text { color: #555; font-size: 0.75rem; font-weight: bold; }
-        .pick-box { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; font-weight: 800; border-radius: 6px; padding: 6px 8px; width: 85px; box-sizing: border-box; }
-        .pick-box img { width: 22px; height: 22px; object-fit: contain; border-radius: 4px; }
-        .pick-box.win { background-color: #e6f4ea; color: #137333; border: 1px solid #137333; }
-        .pick-box.loss { background-color: #fce8e6; color: #c5221f; border: 1px solid #c5221f; }
-        .pick-box.pending { background-color: #f1f3f4; color: #5f6368; border: 1px solid #dadce0; }
-        .pick-box.missing { background-color: #ffffff; color: #ccc; border: 1px dashed #ccc; font-weight: normal; }
-        .status-pre { color: #888; font-size: 0.75rem; }
-        .status-in { color: #d93025; font-size: 0.75rem; font-weight: bold; animation: pulse 2s infinite; }
-        .status-post { color: #111; font-size: 0.75rem; font-weight: bold; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-    </style>
-    <script>
-        function toggleViewMode(btn) {
-            const container = btn.closest('.week-container');
-            const accView = container.querySelector('.accordion-view');
-            const tblView = container.querySelector('.table-view');
-            const isExpanding = btn.innerText === "Expand All";
-            if (isExpanding) {
-                accView.style.display = 'none';
-                tblView.style.display = 'block';
-                btn.innerText = "Collapse All";
-                btn.style.backgroundColor = "#fce8e6";
-                btn.style.color = "#c5221f";
-                btn.style.borderColor = "#f5c6cb";
-            } else {
-                accView.style.display = 'block';
-                tblView.style.display = 'none';
-                btn.innerText = "Expand All";
-                btn.style.backgroundColor = "#e6f4ea";
-                btn.style.color = "#137333";
-                btn.style.borderColor = "#c3e6cb";
-                const details = accView.querySelectorAll('details');
-                details.forEach(d => d.removeAttribute('open'));
-            }
-        }
-        function filterWeek(saveChoice = true) {
-            const selectEl = document.getElementById('week-filter');
-            const selected = selectEl.value;
-            if (saveChoice) { localStorage.setItem('pool_selected_week', selected); }
-            const containers = document.querySelectorAll('.week-container');
-            containers.forEach(container => {
-                if (selected === 'all' || container.id === selected) { container.style.display = 'block'; } 
-                else { container.style.display = 'none'; }
-            });
-        }
-        window.onload = function() {
-            const savedWeek = localStorage.getItem('pool_selected_week');
-            if (savedWeek && document.querySelector('#week-filter option[value="' + savedWeek + '"]')) {
-                document.getElementById('week-filter').value = savedWeek;
-            }
-            filterWeek(false);
-            setTimeout(function() { window.location.reload(); }, 60000);
-        };
-    </script>
-</head>
-<body>
-    <h1>🏈 Francis Fancy Bottoms Pickem Pool</h1>
-    <div class="last-updated">Auto-refreshes every 60s &bull; Scored: _UPDATE_TIME_</div>
-    <div class="filter-container">
-        <select id="week-filter" onchange="filterWeek(true)">
-            _DROPDOWN_OPTIONS_
-        </select>
-    </div>
-"""
-
-html_content = HTML_TEMPLATE.replace("_DROPDOWN_OPTIONS_", dropdown_options).replace("_UPDATE_TIME_", update_time_utc)
+html_parts = [
+    "<!DOCTYPE html>",
+    "<html><head>",
+    "<title>Francis Fancy Bottoms Pickem Pool</title>",
+    "<meta name='viewport' content='width=device-width, initial-scale=1'>",
+    "<!-- App Setup Tags -->",
+    "<link rel='manifest' href='manifest.json'>",
+    "<meta name='apple-mobile-web-app-capable' content='yes'>",
+    "<meta name='apple-mobile-web-app-status-bar-style' content='black'>",
+    "<meta name='apple-mobile-web-app-title' content=\"Pick'em\">",
+    "<link rel='apple-touch-icon' href='icon.png'>",
+    "<style>",
+    "body{font-family:-apple-system,sans-serif;margin:0;padding:15px;",
+    "background-color:#f0f2f6;color:#31333F;}",
+    "h1{text-align:center;padding-bottom:2px;font-size:1.6rem;",
+    "margin-bottom:2px;}",
+    ".last-updated{text-align:center;font-size:0.72rem;color:#888;",
+    "margin-bottom:15px;}",
+    ".filter-container{text-align:center;margin-bottom:20px;}",
+    "select#week-filter{padding:8px 16px;font-size:1rem;border-radius:8px;",
+    "border:1px solid #ccc;font-weight:bold;background:#fff;outline:none;}",
+    ".warning-banner{background-color:#ffbd45;color:#000;padding:15px;",
+    "border-radius:8px;text-align:center;margin-bottom:20px;",
+    "font-weight:bold;box-shadow:0 2px 4px rgba(0,0,0,0.1);}",
+    ".warning-banner small{font-weight:normal;display:block;margin-top:5px;}",
+    ".week-container{margin-bottom:30px;}",
+    ".week-header-bar{display:flex;justify-content:space-between;",
+    "align-items:center;padding:0 5px 10px 5px;border-bottom:2px solid #ddd;",
+    "margin-bottom:15px;}",
+    ".week-header-bar h2{margin:0;color:#000;font-size:1.4rem;}",
+    ".expand-btn{background:#e6f4ea;color:#137333;border:1px solid #c3e6cb;",
+    "padding:6px 12px;border-radius:6px;font-weight:bold;cursor:pointer;",
+    "font-size:0.85rem;outline:none;}",
+    ".winner-banner{background-color:#137333;color:white;padding:15px;",
+    "border-radius:8px;text-align:center;margin:0 0 15px 0;",
+    "box-shadow:0 2px 4px rgba(0,0,0,0.1);}",
+    ".winner-banner.tie{background-color:#0d652d;}",
+    ".winner-banner .title{font-size:0.85rem;font-weight:bold;",
+    "letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;",
+    "opacity:0.9;}",
+    ".winner-banner .players{font-size:1.15rem;font-weight:900;",
+    "line-height:1.4;}",
+    ".winner-banner .players span{font-weight:normal;font-size:0.95rem;",
+    "opacity:0.9;}",
+    ".winner-banner small{display:block;margin-top:8px;opacity:0.9;",
+    "font-size:0.85rem;border-top:1px solid rgba(255,255,255,0.2);",
+    "padding-top:8px;}",
+    "details.player-card{background:#fff;border-radius:8px;",
+    "margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.1);overflow:hidden;}",
+    "details.player-card summary{padding:15px 20px;font-weight:bold;",
+    "cursor:pointer;display:flex;justify-content:space-between;",
+    "align-items:center;list-style:none;user-select:none;}",
+    "details.player-card summary::-webkit-details-marker{display:none;}",
+    "details.player-card summary:hover{background-color:#f8f9fa;}",
+    "details.player-card[open] summary{border-bottom:1px solid #eee;",
+    "background-color:#fafafa;}",
+    ".picks-grid{display:grid;",
+    "grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));gap:10px;",
+    "padding:15px;background:#fafafa;}",
+    ".acc-card{display:flex;flex-direction:column;align-items:center;",
+    "padding:10px;border-radius:8px;border:1px solid #ccc;",
+    "text-align:center;background-color:#fff;}",
+    ".acc-card .logos{display:flex;align-items:center;gap:6px;",
+    "margin-bottom:2px;width:100%;justify-content:center;}",
+    ".acc-card .logos img{width:26px;height:26px;object-fit:contain;}",
+    ".acc-card .teams{font-size:0.75rem;color:#555;margin-bottom:2px;",
+    "font-weight:bold;}",
+    ".acc-card .pick-text{font-size:0.9rem;font-weight:900;padding-top:8px;",
+    "border-top:1px solid rgba(0,0,0,0.1);width:100%;}",
+    ".acc-card.win{background-color:#e6f4ea;border-color:#137333;}",
+    ".acc-card.win .pick-text{color:#137333;}",
+    ".acc-card.loss, .acc-card.missing{background-color:#fce8e6;",
+    "border-color:#c5221f;}",
+    ".acc-card.loss .pick-text, .acc-card.missing .pick-text{color:#c5221f;}",
+    ".acc-card.pending{background-color:#fff;border-color:#dadce0;}",
+    ".acc-card.pending .pick-text{color:#5f6368;}",
+    ".table-view{background:#ffffff;padding:10px 0 0 0;border-radius:10px;",
+    "box-shadow:0 2px 5px rgba(0,0,0,0.05);display:none;}",
+    ".instruction-text{font-size:0.8rem;color:#888;padding:0 15px 10px;",
+    "font-style:italic;}",
+    ".horizontal-scroll-area{overflow-x:auto;white-space:nowrap;",
+    "padding-bottom:15px;}",
+    ".grid-row{display:flex;width:max-content;min-width:100%;",
+    "border-bottom:1px solid #f0f2f6;background-color:#fff;}",
+    ".grid-row:hover{background-color:#f8f9fa;}",
+    ".header-row{background-color:#fafafa;border-bottom:2px solid #e0e0e0;}",
+    ".locked-cols{position:sticky;left:0;z-index:2;display:flex;",
+    "align-items:center;background-color:inherit;",
+    "border-right:2px solid #e0e0e0;}",
+    ".col-name{width:95px;padding:12px 8px;font-weight:bold;",
+    "font-size:0.95rem;white-space:nowrap;overflow:hidden;",
+    "text-overflow:ellipsis;}",
+    ".col-wins{width:40px;padding:12px 4px;font-weight:900;",
+    "font-size:1.05rem;text-align:center;}",
+    ".col-tb{width:45px;padding:12px 4px;font-weight:bold;",
+    "font-size:0.95rem;text-align:center;color:#666;}",
+    ".header-row .col-name, .header-row .col-wins, .header-row .col-tb{",
+    "font-size:0.75rem;color:#555;text-transform:uppercase;",
+    "font-weight:normal;}",
+    ".scroll-cols{display:flex;align-items:center;}",
+    ".game-cell{width:110px;padding:8px 4px;display:flex;",
+    "flex-direction:column;align-items:center;justify-content:center;}",
+    ".matchup-logos{display:flex;justify-content:center;align-items:center;",
+    "gap:4px;margin-bottom:2px;}",
+    ".matchup-logos img{width:24px;height:24px;object-fit:contain;}",
+    ".matchup-text{color:#555;font-size:0.75rem;font-weight:bold;}",
+    ".pick-box{display:flex;align-items:center;justify-content:center;",
+    "gap:6px;font-size:0.85rem;font-weight:800;border-radius:6px;",
+    "padding:6px 8px;width:85px;box-sizing:border-box;}",
+    ".pick-box img{width:22px;height:22px;object-fit:contain;}",
+    ".pick-box{border-radius:4px;}",
+    ".pick-box.win{background-color:#e6f4ea;color:#137333;",
+    "border:1px solid #137333;}",
+    ".pick-box.loss{background-color:#fce8e6;color:#c5221f;",
+    "border:1px solid #c5221f;}",
+    ".pick-box.pending{background-color:#f1f3f4;color:#5f6368;",
+    "border:1px solid #dadce0;}",
+    ".pick-box.missing{background-color:#ffffff;color:#ccc;",
+    "border:1px dashed #ccc;font-weight:normal;}",
+    ".status-pre{color:#888;font-size:0.75rem;}",
+    ".status-in{color:#d93025;font-size:0.75rem;font-weight:bold;",
+    "animation:pulse 2s infinite;}",
+    ".status-post{color:#111;font-size:0.75rem;font-weight:bold;}",
+    "@keyframes pulse{0%{opacity:1;}50%{opacity:0.6;}100%{opacity:1;}}",
+    "</style>",
+    "<script>",
+    "function toggleViewMode(btn) {",
+    " const cont = btn.closest('.week-container');",
+    " const accView = cont.querySelector('.accordion-view');",
+    " const tblView = cont.querySelector('.table-view');",
+    " const isExp = btn.innerText === 'Expand All';",
+    " if (isExp) {",
+    "  accView.style.display = 'none';",
+    "  tblView.style.display = 'block';",
+    "  btn.innerText = 'Collapse All';",
+    "  btn.style.backgroundColor = '#fce8e6';",
+    "  btn.style.color = '#c5221f';",
+    "  btn.style.borderColor = '#f5c6cb';",
+    " } else {",
+    "  accView.style.display = 'block';",
+    "  tblView.style.display = 'none';",
+    "  btn.innerText = 'Expand All';",
+    "  btn.style.backgroundColor = '#e6f4ea';",
+    "  btn.style.color = '#137333';",
+    "  btn.style.borderColor = '#c3e6cb';",
+    "  const details = accView.querySelectorAll('details');",
+    "  details.forEach(d => d.removeAttribute('open'));",
+    " }",
+    "}",
+    "function filterWeek(saveChoice = true) {",
+    " const selectEl = document.getElementById('week-filter');",
+    " const selected = selectEl.value;",
+    " if (saveChoice) { localStorage.setItem('pool_wk', selected); }",
+    " const conts = document.querySelectorAll('.week-container');",
+    " conts.forEach(c => {",
+    "  if (selected === 'all' || c.id === selected) { ",
+    "   c.style.display = 'block'; ",
+    "  } else { ",
+    "   c.style.display = 'none'; ",
+    "  }",
+    " });",
+    "}",
+    "window.onload = function() {",
+    " const sWk = localStorage.getItem('pool_wk');",
+    " if (sWk) {",
+    "  const opt = document.querySelector('#week-filter option[value=\"'+sWk+'\"]');",
+    "  if (opt) { document.getElementById('week-filter').value = sWk; }",
+    " }",
+    " filterWeek(false);",
+    " setTimeout(function() { window.location.reload(); }, 60000);",
+    "};",
+    "</script>",
+    "</head>",
+    "<body>",
+    "<h1>🏈 Francis Fancy Bottoms Pickem Pool</h1>",
+    f"<div class='last-updated'>Auto-refreshes every 60s &bull; ",
+    f"Scored: {update_time_utc}</div>",
+    "<div class='filter-container'>",
+    "<select id='week-filter' onchange='filterWeek(true)'>",
+    f"{dropdown_options}",
+    "</select>",
+    "</div>"
+]
 
 if warnings:
-    html_content += "<div class='warning-banner'>⚠️ UPDATE THE OLDS DICTIONARY!"
+    html_parts.append("<div class='warning-banner'>⚠️ UPDATE DICTIONARY!")
     for w in warnings:
-        html_content += f"<small>{w}</small>"
-    html_content += "</div>"
+        html_parts.append(f"<small>{w}</small>")
+    html_parts.append("</div>")
 
 for week_key in sorted_weeks:
     week_id = week_key.replace(" ", "-")
@@ -320,148 +384,175 @@ for week_key in sorted_weeks:
     api_games = week_data["games"]
     scores = week_data["scores"]
     actual_tb = week_data["actual_tb"]
-    all_games_final = week_data["all_final"]
+    all_final = week_data["all_final"]
     
-    banner_html = ""
     if scores:
-        max_wins = scores[0]['Wins']
-        top_players = [s for s in scores if s['Wins'] == max_wins]
-        
-        if len(top_players) == 1:
-            win_p = top_players[0]
-            status_title = "WINNER" if all_games_final else "CURRENT LEADER"
-            banner_html += "<div class='winner-banner'>"
-            banner_html += f"<div class='title'>🏆 {status_title}</div>"
-            banner_html += f"<div class='players'>{win_p['Player']}</div>"
-            banner_html += f"<small>{max_wins} Correct Picks</small>"
-            banner_html += "</div>"
-        else:
-            if all_games_final:
-                for p in top_players:
-                    try:
-                        p['tb_diff'] = abs(float(p['TB']) - actual_tb)
-                    except:
-                        p['tb_diff'] = float('inf')
-                min_diff = min(p['tb_diff'] for p in top_players)
-                actual_winners = [p for p in top_players if p['tb_diff'] == min_diff]
+        for p in scores:
+            try:
+                p['tb_diff'] = abs(float(p['TB']) - actual_tb)
+            except Exception:
+                p['tb_diff'] = float('inf')
                 
-                if len(actual_winners) == 1:
-                    win_p = actual_winners[0]
-                    banner_html += "<div class='winner-banner'>"
-                    banner_html += "<div class='title'>🏆 TIEBREAKER WINNER</div>"
-                    banner_html += f"<div class='players'>{win_p['Player']}</div>"
-                    banner_html += f"<small>{max_wins} Wins | Guessed {win_p['TB']} | Actual Score: {actual_tb}</small>"
-                    banner_html += "</div>"
-                else:
-                    banner_html += "<div class='winner-banner tie'>"
-                    banner_html += "<div class='title'>🤝 TIED FOR 1ST PLACE</div>"
-                    banner_html += "<div class='players'>"
-                    for p in actual_winners:
-                        banner_html += f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>"
-                    banner_html += "</div>"
-                    banner_html += f"<small>{max_wins} Wins | Actual Score: {actual_tb}</small>"
-                    banner_html += "</div>"
+        if all_final:
+            scores = sorted(scores, key=lambda x: (-x['Wins'], x['tb_diff']))
+        else:
+            scores = sorted(scores, key=lambda x: -x['Wins'])
+            
+        ranks = []
+        curr = []
+        for p in scores:
+            if not curr:
+                curr.append(p)
             else:
-                banner_html += "<div class='winner-banner tie'>"
-                banner_html += "<div class='title'>🤝 TIED FOR 1ST PLACE</div>"
-                banner_html += "<div class='players'>"
-                for p in top_players:
-                    banner_html += f"<div style='margin: 4px 0;'>{p['Player']} <span style='font-weight:normal;font-size:0.95rem;opacity:0.9;'>(TB: {p['TB']})</span></div>"
-                banner_html += "</div>"
-                banner_html += f"<small>{max_wins} Correct Picks so far</small>"
-                banner_html += "</div>"
+                last_p = curr[0]
+                if all_final:
+                    if p['Wins'] == last_p['Wins'] and p['tb_diff'] == last_p['tb_diff']:
+                        curr.append(p)
+                    else:
+                        ranks.append(curr)
+                        curr = [p]
+                else:
+                    if p['Wins'] == last_p['Wins']:
+                        curr.append(p)
+                    else:
+                        ranks.append(curr)
+                        curr = [p]
+        if curr:
+            ranks.append(curr)
+            
+        r1 = ranks[0]
+        max_w = r1[0]['Wins']
+        
+        if len(r1) == 1:
+            win_p = r1[0]
+            st_title = "WINNER" if all_final else "CURRENT LEADER"
+            html_parts.append("<div class='winner-banner'>")
+            html_parts.append(f"<div class='title'>🏆 {st_title}</div>")
+            html_parts.append(f"<div class='players'>{win_p['Player']}</div>")
+            if all_final:
+                html_parts.append(f"<small>{max_w} Wins | Guessed {win_p['TB']} ")
+                html_parts.append(f"| Actual: {actual_tb}</small></div>")
+            else:
+                html_parts.append(f"<small>{max_w} Correct Picks</small></div>")
+        else:
+            st_title = "TIEBREAKER WINNERS" if all_final else "TIED FOR 1ST PLACE"
+            html_parts.append("<div class='winner-banner tie'>")
+            html_parts.append(f"<div class='title'>🤝 {st_title}</div>")
+            html_parts.append("<div class='players'>")
+            for p in r1:
+                html_parts.append(f"<div style='margin: 4px 0;'>{p['Player']} ")
+                html_parts.append("<span style='font-weight:normal;opacity:0.9;'>")
+                html_parts.append(f"(TB: {p['TB']})</span></div>")
+            html_parts.append("</div>")
+            if all_final:
+                html_parts.append(f"<small>{max_w} Wins | Actual: {actual_tb}</small></div>")
+            else:
+                html_parts.append(f"<small>{max_w} Correct Picks so far</small></div>")
+                
+        if len(ranks) > 1:
+            r2 = ranks[1]
+            sec_w = r2[0]['Wins']
+            html_parts.append("<div class='winner-banner' style='background-color:")
+            html_parts.append("#fbbc04; color: #111;'>")
+            if len(r2) == 1:
+                sec_p = r2[0]
+                st_title = "RUNNER UP" if all_final else "CURRENT 2ND PLACE"
+                html_parts.append(f"<div class='title' style='color: #444;'>")
+                html_parts.append(f"🥈 {st_title}</div>")
+                html_parts.append(f"<div class='players'>{sec_p['Player']}</div>")
+                html_parts.append("<small style='border-top: 1px solid rgba(0,0,0,0.1); ")
+                html_parts.append("color: #333; padding-top: 8px;'>")
+                if all_final:
+                    html_parts.append(f"{sec_w} Wins | Guessed {sec_p['TB']} ")
+                    html_parts.append(f"| Actual: {actual_tb}</small></div>")
+                else:
+                    html_parts.append(f"{sec_w} Correct Picks</small></div>")
+            else:
+                st_title = "TIED FOR 2ND PLACE"
+                html_parts.append(f"<div class='title' style='color: #444;'>")
+                html_parts.append(f"🥈 {st_title}</div><div class='players'>")
+                for p in r2:
+                    html_parts.append(f"<div style='margin: 4px 0;'>{p['Player']} ")
+                    html_parts.append("<span style='font-weight:normal;opacity:0.8;'>")
+                    html_parts.append(f"(TB: {p['TB']})</span></div>")
+                html_parts.append("</div><small style='border-top: 1px solid ")
+                html_parts.append("rgba(0,0,0,0.1); color: #333; padding-top: 8px;'>")
+                if all_final:
+                    html_parts.append(f"{sec_w} Wins | Actual: {actual_tb}</small></div>")
+                else:
+                    html_parts.append(f"{sec_w} Correct Picks so far</small></div>")
     
-    html_content += f"<div class='week-container' id='{week_id}'>"
-    html_content += "<div class='week-header-bar'>"
-    html_content += f"<h2>{week_key}</h2>"
-    html_content += "<button class='expand-btn' onclick='toggleViewMode(this)'>Expand All</button>"
-    html_content += "</div>"
-    html_content += banner_html
-    html_content += "<div class='accordion-view'>"
+    html_parts.append(f"<div class='week-container' id='{week_id}'>")
+    html_parts.append("<div class='week-header-bar'>")
+    html_parts.append(f"<h2>{week_key}</h2>")
+    html_parts.append("<button class='expand-btn' onclick='toggleViewMode(this)'>")
+    html_parts.append("Expand All</button></div>")
+    html_parts.append("<div class='accordion-view'>")
     
     for s in scores:
-        html_content += "<details class='player-card'>"
-        html_content += "<summary>"
-        html_content += f"<span style='font-size: 1.05rem; color: #333;'>{s['Player']}</span>"
-        html_content += f"<span style='font-size: 1.0rem; color: #000;'>{s['Wins']} Wins "
-        html_content += f"<span style='color:#888; font-size:0.85rem; margin-left:4px;'>(TB: {s['TB']})</span></span>"
-        html_content += "</summary>"
-        html_content += "<div class='picks-grid'>"
+        html_parts.append("<details class='player-card'><summary>")
+        html_parts.append(f"<span style='font-size:1.05rem;'>{s['Player']}</span>")
+        html_parts.append(f"<span style='font-size:1.0rem;'>{s['Wins']} Wins ")
+        html_parts.append(f"<span style='color:#888;font-size:0.85rem;'>")
+        html_parts.append(f"(TB: {s['TB']})</span></span></summary>")
+        html_parts.append("<div class='picks-grid'>")
         
         for p in s['Picks']:
             pick_text = f"Picked: {p['pick']}" if p['pick'] else "NO PICK"
-            status = p['status']
-            html_content += f"<div class='acc-card {status}'>"
-            html_content += "<div class='logos'>"
-            html_content += f"<img src='{p['away_logo']}' title='{p['away']}'> "
-            html_content += f"{p['score_str']} "
-            html_content += f"<img src='{p['home_logo']}' title='{p['home']}'>"
-            html_content += "</div>"
-            html_content += f"<div class='teams'>{p['away']} @ {p['home']}</div>"
-            html_content += f"<div class='{p['game_state_class']}' style='margin-bottom: 6px;'>{p['status_text']}</div>"
-            html_content += f"<div class='pick-text'>{pick_text}</div>"
-            html_content += "</div>"
+            html_parts.append(f"<div class='acc-card {p['status']}'>")
+            html_parts.append("<div class='logos'>")
+            html_parts.append(f"<img src='{p['away_logo']}'> {p['score_str']} ")
+            html_parts.append(f"<img src='{p['home_logo']}'></div>")
+            html_parts.append(f"<div class='teams'>{p['away']} @ {p['home']}</div>")
+            html_parts.append(f"<div class='{p['game_state_class']}' ")
+            html_parts.append(f"style='margin-bottom:6px;'>{p['status_text']}</div>")
+            html_parts.append(f"<div class='pick-text'>{pick_text}</div></div>")
             
-        html_content += "</div>"
-        html_content += "</details>"
+        html_parts.append("</div></details>")
         
-    html_content += "</div>"
-    
-    html_content += "<div class='table-view'>"
-    html_content += "<div class='instruction-text'>Scroll right to view all matchups.</div>"
-    html_content += "<div class='horizontal-scroll-area'>"
-    html_content += "<div class='grid-row header-row'>"
-    html_content += "<div class='locked-cols'>"
-    html_content += "<div class='col-name'>Player</div>"
-    html_content += "<div class='col-wins'>Wins</div>"
-    html_content += "<div class='col-tb'>TB</div>"
-    html_content += "</div>"
-    html_content += "<div class='scroll-cols'>"
+    html_parts.append("</div><div class='table-view'>")
+    html_parts.append("<div class='instruction-text'>Scroll for matchups.</div>")
+    html_parts.append("<div class='horizontal-scroll-area'>")
+    html_parts.append("<div class='grid-row header-row'>")
+    html_parts.append("<div class='locked-cols'><div class='col-name'>Player</div>")
+    html_parts.append("<div class='col-wins'>Wins</div>")
+    html_parts.append("<div class='col-tb'>TB</div></div>")
+    html_parts.append("<div class='scroll-cols'>")
     
     for g in api_games:
-        html_content += "<div class='game-cell'>"
-        html_content += "<div class='matchup-logos'>"
-        html_content += f"<img src='{g['away_logo']}' title='{g['away']}'> "
-        html_content += f"{g['score_str']} "
-        html_content += f"<img src='{g['home_logo']}' title='{g['home']}'>"
-        html_content += "</div>"
-        html_content += f"<div class='matchup-text'>{g['away']} @ {g['home']}</div>"
-        html_content += f"<div class='{g['status_class']}' style='margin-top: 2px;'>{g['status_text']}</div>"
-        html_content += "</div>"
+        html_parts.append("<div class='game-cell'><div class='matchup-logos'>")
+        html_parts.append(f"<img src='{g['away_logo']}'> {g['score_str']} ")
+        html_parts.append(f"<img src='{g['home_logo']}'></div>")
+        html_parts.append(f"<div class='matchup-text'>{g['away']} @ {g['home']}</div>")
+        html_parts.append(f"<div class='{g['status_class']}' ")
+        html_parts.append(f"style='margin-top:2px;'>{g['status_text']}</div></div>")
         
-    html_content += "</div>"
-    html_content += "</div>"
+    html_parts.append("</div></div>")
     
     for s in scores:
-        html_content += "<div class='grid-row player-row'>"
-        html_content += "<div class='locked-cols'>"
-        html_content += f"<div class='col-name'>{s['Player']}</div>"
-        html_content += f"<div class='col-wins'>{s['Wins']}</div>"
-        html_content += f"<div class='col-tb'>{s['TB']}</div>"
-        html_content += "</div>"
-        html_content += "<div class='scroll-cols'>"
+        html_parts.append("<div class='grid-row player-row'>")
+        html_parts.append("<div class='locked-cols'>")
+        html_parts.append(f"<div class='col-name'>{s['Player']}</div>")
+        html_parts.append(f"<div class='col-wins'>{s['Wins']}</div>")
+        html_parts.append(f"<div class='col-tb'>{s['TB']}</div></div>")
+        html_parts.append("<div class='scroll-cols'>")
         
         for p in s['Picks']:
             if p['pick']:
-                html_content += "<div class='game-cell'>"
-                html_content += f"<div class='pick-box {p['status']}'>"
-                html_content += f"<img src='{p['logo']}'> <span>{p['pick']}</span>"
-                html_content += "</div>"
-                html_content += "</div>"
+                html_parts.append(f"<div class='game-cell'>")
+                html_parts.append(f"<div class='pick-box {p['status']}'>")
+                html_parts.append(f"<img src='{p['logo']}'> <span>{p['pick']}</span>")
+                html_parts.append("</div></div>")
             else:
-                html_content += "<div class='game-cell'>"
-                html_content += "<div class='pick-box missing'>-</div>"
-                html_content += "</div>"
+                html_parts.append("<div class='game-cell'>")
+                html_parts.append("<div class='pick-box missing'>-</div></div>")
                 
-        html_content += "</div>"
-        html_content += "</div>"
+        html_parts.append("</div></div>")
         
-    html_content += "</div>"
-    html_content += "</div>"
-    html_content += "</div>"
+    html_parts.append("</div></div></div>")
 
-html_content += "</body></html>"
+html_parts.append("</body></html>")
 
 with open("index.html", "w") as f:
-    f.write(html_content)
+    f.write("".join(html_parts))
     
