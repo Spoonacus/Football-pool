@@ -1,5 +1,6 @@
 import glob
 import time
+import os
 import pandas as pd
 import requests
 
@@ -174,7 +175,7 @@ for file in sorted(excel_files):
         "actual_tb": actual_tb, "all_final": all_games_final
     }
 
-sorted_weeks = sorted(
+    sorted_weeks = sorted(
     all_results.keys(), 
     key=lambda x: int(x.replace("Week ", "")), 
     reverse=True
@@ -186,14 +187,17 @@ for w in sorted_weeks:
     dropdown_options += f"<option value='{w_id}'>{w}</option>\n"
 dropdown_options += "<option value='all'>Show All Weeks</option>"
 
-update_time_utc = time.strftime("%b %d, %I:%M %p UTC", time.gmtime())
+if hasattr(time, 'tzset'):
+    os.environ['TZ'] = 'America/Los_Angeles'
+    time.tzset()
+update_time_pt = time.strftime("%b %d, %I:%M %p %Z")
 
 html_parts = [
     "<!DOCTYPE html>",
     "<html><head>",
     "<title>Francis Fancy Bottoms Pickem Pool</title>",
     "<meta name='viewport' content='width=device-width, initial-scale=1'>",
-        "<!-- App Setup Tags -->",
+    "<!-- App Setup Tags -->",
     "<link rel='manifest' href='manifest.json'>",
     "<meta name='apple-mobile-web-app-capable' content='yes'>",
     "<meta name='apple-mobile-web-app-status-bar-style' content='black'>",
@@ -365,7 +369,7 @@ html_parts = [
     "<body>",
     "<h1>🏈 Francis Fancy Bottoms Pickem Pool</h1>",
     f"<div class='last-updated'>Auto-refreshes every 60s &bull; ",
-    f"Scored: {update_time_utc}</div>",
+    f"Scored: {update_time_pt}</div>",
     "<div class='filter-container'>",
     "<select id='week-filter' onchange='filterWeek(true)'>",
     f"{dropdown_options}",
@@ -386,6 +390,8 @@ for week_key in sorted_weeks:
     scores = week_data["scores"]
     actual_tb = week_data["actual_tb"]
     all_final = week_data["all_final"]
+    
+    html_parts.append(f"<div class='week-container' id='{week_id}'>")
     
     if scores:
         for p in scores:
@@ -423,67 +429,77 @@ for week_key in sorted_weeks:
             
         r1 = ranks[0]
         max_w = r1[0]['Wins']
+        completed_games = sum(1 for g in api_games if g['state'] == 'post')
         
-        if len(r1) == 1:
-            win_p = r1[0]
-            st_title = "WINNER" if all_final else "CURRENT LEADER"
-            html_parts.append("<div class='winner-banner'>")
-            html_parts.append(f"<div class='title'>🏆 {st_title}</div>")
-            html_parts.append(f"<div class='players'>{win_p['Player']}</div>")
-            if all_final:
-                html_parts.append(f"<small>{max_w} Wins | Guessed {win_p['TB']} ")
-                html_parts.append(f"| Actual: {actual_tb}</small></div>")
+        # STRICT RULE: NO BANNERS DRAWN IF EVERYONE HAS 0 WINS
+        if max_w > 0:
+            if completed_games < 5 and len(r1) > 3:
+                # Early week massive tie logic
+                html_parts.append("<div class='winner-banner'>")
+                html_parts.append(f"<div class='players' style='font-size:1.2rem; margin-bottom: 4px;'>🏈 {week_key.upper()} IN PROGRESS</div>")
+                html_parts.append("<small style='border-top: none; padding-top: 0;'>Leaderboard will update after early Sunday games.</small>")
+                html_parts.append("</div>")
             else:
-                html_parts.append(f"<small>{max_w} Correct Picks</small></div>")
-        else:
-            st_title = "TIEBREAKER WINNERS" if all_final else "TIED FOR 1ST PLACE"
-            html_parts.append("<div class='winner-banner tie'>")
-            html_parts.append(f"<div class='title'>🤝 {st_title}</div>")
-            html_parts.append("<div class='players'>")
-            for p in r1:
-                html_parts.append(f"<div style='margin: 4px 0;'>{p['Player']} ")
-                html_parts.append("<span style='font-weight:normal;opacity:0.9;'>")
-                html_parts.append(f"(TB: {p['TB']})</span></div>")
-            html_parts.append("</div>")
-            if all_final:
-                html_parts.append(f"<small>{max_w} Wins | Actual: {actual_tb}</small></div>")
-            else:
-                html_parts.append(f"<small>{max_w} Correct Picks so far</small></div>")
-                
-        if len(ranks) > 1:
-            r2 = ranks[1]
-            sec_w = r2[0]['Wins']
-            html_parts.append("<div class='winner-banner' style='background-color:")
-            html_parts.append("#fbbc04; color: #111;'>")
-            if len(r2) == 1:
-                sec_p = r2[0]
-                st_title = "RUNNER UP" if all_final else "CURRENT 2ND PLACE"
-                html_parts.append(f"<div class='title' style='color: #444;'>")
-                html_parts.append(f"🥈 {st_title}</div>")
-                html_parts.append(f"<div class='players'>{sec_p['Player']}</div>")
-                html_parts.append("<small style='border-top: 1px solid rgba(0,0,0,0.1); ")
-                html_parts.append("color: #333; padding-top: 8px;'>")
-                if all_final:
-                    html_parts.append(f"{sec_w} Wins | Guessed {sec_p['TB']} ")
-                    html_parts.append(f"| Actual: {actual_tb}</small></div>")
+                if len(r1) == 1:
+                    win_p = r1[0]
+                    st_title = "WINNER" if all_final else "CURRENT LEADER"
+                    html_parts.append("<div class='winner-banner'>")
+                    html_parts.append(f"<div class='title'>🏆 {st_title}</div>")
+                    html_parts.append(f"<div class='players'>{win_p['Player']}</div>")
+                    if all_final:
+                        html_parts.append(f"<small>{max_w} Wins | Guessed {win_p['TB']} ")
+                        html_parts.append(f"| Actual: {actual_tb}</small></div>")
+                    else:
+                        html_parts.append(f"<small>{max_w} Correct Picks</small></div>")
                 else:
-                    html_parts.append(f"{sec_w} Correct Picks</small></div>")
-            else:
-                st_title = "TIED FOR 2ND PLACE"
-                html_parts.append(f"<div class='title' style='color: #444;'>")
-                html_parts.append(f"🥈 {st_title}</div><div class='players'>")
-                for p in r2:
-                    html_parts.append(f"<div style='margin: 4px 0;'>{p['Player']} ")
-                    html_parts.append("<span style='font-weight:normal;opacity:0.8;'>")
-                    html_parts.append(f"(TB: {p['TB']})</span></div>")
-                html_parts.append("</div><small style='border-top: 1px solid ")
-                html_parts.append("rgba(0,0,0,0.1); color: #333; padding-top: 8px;'>")
-                if all_final:
-                    html_parts.append(f"{sec_w} Wins | Actual: {actual_tb}</small></div>")
-                else:
-                    html_parts.append(f"{sec_w} Correct Picks so far</small></div>")
+                    st_title = "TIEBREAKER WINNERS" if all_final else "TIED FOR 1ST PLACE"
+                    html_parts.append("<div class='winner-banner tie'>")
+                    html_parts.append(f"<div class='title'>🤝 {st_title}</div>")
+                    html_parts.append("<div class='players'>")
+                    for p in r1:
+                        html_parts.append(f"<div style='margin: 4px 0;'>{p['Player']} ")
+                        html_parts.append("<span style='font-weight:normal;opacity:0.9;'>")
+                        html_parts.append(f"(TB: {p['TB']})</span></div>")
+                    html_parts.append("</div>")
+                    if all_final:
+                        html_parts.append(f"<small>{max_w} Wins | Actual: {actual_tb}</small></div>")
+                    else:
+                        html_parts.append(f"<small>{max_w} Correct Picks so far</small></div>")
+                        
+                if len(ranks) > 1:
+                    r2 = ranks[1]
+                    sec_w = r2[0]['Wins']
+                    if sec_w > 0:
+                        html_parts.append("<div class='winner-banner' style='background-color:")
+                        html_parts.append("#fbbc04; color: #111;'>")
+                        if len(r2) == 1:
+                            sec_p = r2[0]
+                            st_title = "RUNNER UP" if all_final else "CURRENT 2ND PLACE"
+                            html_parts.append(f"<div class='title' style='color: #444;'>")
+                            html_parts.append(f"🥈 {st_title}</div>")
+                            html_parts.append(f"<div class='players'>{sec_p['Player']}</div>")
+                            html_parts.append("<small style='border-top: 1px solid rgba(0,0,0,0.1); ")
+                            html_parts.append("color: #333; padding-top: 8px;'>")
+                            if all_final:
+                                html_parts.append(f"{sec_w} Wins | Guessed {sec_p['TB']} ")
+                                html_parts.append(f"| Actual: {actual_tb}</small></div>")
+                            else:
+                                html_parts.append(f"{sec_w} Correct Picks</small></div>")
+                        else:
+                            st_title = "TIED FOR 2ND PLACE"
+                            html_parts.append(f"<div class='title' style='color: #444;'>")
+                            html_parts.append(f"🥈 {st_title}</div><div class='players'>")
+                            for p in r2:
+                                html_parts.append(f"<div style='margin: 4px 0;'>{p['Player']} ")
+                                html_parts.append("<span style='font-weight:normal;opacity:0.8;'>")
+                                html_parts.append(f"(TB: {p['TB']})</span></div>")
+                            html_parts.append("</div><small style='border-top: 1px solid ")
+                            html_parts.append("rgba(0,0,0,0.1); color: #333; padding-top: 8px;'>")
+                            if all_final:
+                                html_parts.append(f"{sec_w} Wins | Actual: {actual_tb}</small></div>")
+                            else:
+                                html_parts.append(f"{sec_w} Correct Picks so far</small></div>")
     
-    html_parts.append(f"<div class='week-container' id='{week_id}'>")
     html_parts.append("<div class='week-header-bar'>")
     html_parts.append(f"<h2>{week_key}</h2>")
     html_parts.append("<button class='expand-btn' onclick='toggleViewMode(this)'>")
@@ -556,4 +572,4 @@ html_parts.append("</body></html>")
 
 with open("index.html", "w") as f:
     f.write("".join(html_parts))
-    
+                                
