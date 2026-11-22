@@ -53,11 +53,10 @@
 
         let currentWeekNum = 1;
         let matchupsData = [];
-        let userPicks = {}; // { gameIndex: "TeamName" }
+        let userPicks = {};
 
         async function loadMatchups() {
             try {
-                // Calling ESPN without a week parameter automatically returns the current NFL week
                 const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard");
                 const data = await res.json();
 
@@ -67,7 +66,8 @@
                 const container = document.getElementById('matchups-container');
                 container.innerHTML = '';
 
-                const events = data.events || [];
+                // Sort games chronologically so the last game is always the Tie Breaker
+                const events = (data.events || []).sort((a, b) => new Date(a.date) - new Date(b.date));
                 
                 events.forEach((event, idx) => {
                     const comp = event.competitions[0];
@@ -78,7 +78,15 @@
                     const homeName = home.team.shortDisplayName || home.team.name;
                     const awayLogo = away.team.logo;
                     const homeLogo = home.team.logo;
-                    const gameTime = new Date(event.date).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+                    
+                    // Includes Day, Date, and Time (e.g., "Mon, Nov 23, 5:15 PM")
+                    const gameTime = new Date(event.date).toLocaleString([], { 
+                        weekday: 'short', 
+                        month: 'short', 
+                        day: 'numeric', 
+                        hour: 'numeric', 
+                        minute: '2-digit' 
+                    });
 
                     matchupsData.push({ away: awayName, home: homeName });
 
@@ -127,13 +135,11 @@
         function selectTeam(gameIdx, teamName, side) {
             userPicks[gameIdx] = teamName;
 
-            // Reset both buttons for this game
             document.querySelectorAll(`.pick-btn-${gameIdx}`).forEach(btn => {
                 btn.classList.remove('border-green-600', 'bg-green-50', 'ring-2', 'ring-green-500');
                 btn.classList.add('border-gray-200');
             });
 
-            // Highlight selected button
             const selectedBtn = document.getElementById(`btn-${gameIdx}-${side}`);
             selectedBtn.classList.remove('border-gray-200');
             selectedBtn.classList.add('border-green-600', 'bg-green-50', 'ring-2', 'ring-green-500');
@@ -144,7 +150,6 @@
             const statusMsg = document.getElementById('status-msg');
             const submitBtn = document.getElementById('submit-btn');
 
-            // Verify all games are picked
             if (Object.keys(userPicks).length < matchupsData.length) {
                 statusMsg.innerText = `Please pick a winner for all ${matchupsData.length} games!`;
                 statusMsg.className = "text-center text-sm font-semibold text-red-600 block";
@@ -165,9 +170,9 @@
             statusMsg.classList.add('hidden');
 
             try {
-                // Using text/plain avoids CORS preflight issues with Google Apps Script
                 const res = await fetch(SCRIPT_URL, {
                     method: 'POST',
+                    redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
@@ -181,7 +186,7 @@
                     throw new Error(result.message || "Submission failed");
                 }
             } catch (err) {
-                statusMsg.innerText = "Error sending picks. Please try again.";
+                statusMsg.innerText = "Error: " + err.message;
                 statusMsg.className = "text-center text-sm font-semibold text-red-600 block";
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Submit Picks";
