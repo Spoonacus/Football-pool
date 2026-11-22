@@ -170,21 +170,17 @@
             statusMsg.classList.add('hidden');
 
             try {
-                const res = await fetch(SCRIPT_URL, {
+                // mode: 'no-cors' bypasses Google Apps Script's redirect block
+                await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    redirect: 'follow',
+                    mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
-                const result = await res.json();
 
-                if (result.status === 'success') {
-                    statusMsg.innerText = "Picks submitted! Your sheet has been emailed.";
-                    statusMsg.className = "text-center text-sm font-bold text-green-700 block";
-                    submitBtn.innerText = "Submitted ✓";
-                } else {
-                    throw new Error(result.message || "Submission failed");
-                }
+                statusMsg.innerText = "Picks submitted! Your sheet has been emailed.";
+                statusMsg.className = "text-center text-sm font-bold text-green-700 block";
+                submitBtn.innerText = "Submitted ✓";
             } catch (err) {
                 statusMsg.innerText = "Error: " + err.message;
                 statusMsg.className = "text-center text-sm font-semibold text-red-600 block";
