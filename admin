@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick'em Team Alias Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-200 text-gray-900 p-4 font-sans flex justify-center">
+
+    <div class="w-full max-w-lg bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-green-700 text-white p-5 text-center">
+            <h1 class="text-2xl font-bold">Team Alias Manager</h1>
+            <p class="text-green-200 text-sm mt-1">Fix unmatched team names from Andy's sheet</p>
+            <div class="mt-2 space-x-3 text-xs">
+                <a href="index.html" class="underline text-green-100 hover:text-white">Standings</a>
+                <a href="picks.html" class="underline text-green-100 hover:text-white">Submit Picks</a>
+            </div>
+        </div>
+
+        <div class="p-5 space-y-6">
+            <!-- Unmatched Teams Section -->
+            <div>
+                <h2 class="text-sm font-bold uppercase text-gray-600 mb-2">Unmatched Teams This Week</h2>
+                <div id="unmatched-list" class="space-y-3">
+                    <p class="text-sm text-gray-500 animate-pulse">Checking current_matchups.json...</p>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <button id="save-btn" onclick="saveAliases()"
+                class="w-full bg-green-700 hover:bg-green-800 disabled:bg-gray-400 text-white font-bold py-3 rounded-xl shadow transition">
+                Save Dictionary to GitHub
+            </button>
+            <p id="status-msg" class="text-center text-sm font-semibold hidden"></p>
+
+            <!-- Existing Dictionary -->
+            <div class="border-t pt-4">
+                <h2 class="text-sm font-bold uppercase text-gray-600 mb-2">Saved Aliases</h2>
+                <div id="saved-list" class="space-y-1.5 text-sm"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2Q8ipOv-Hl3_mXRB2DDEU4oQ4hu3vA0aiwS2m_ts6QrnUPtR7TMyxvnjVH5eyltzk6A/exec";
+
+        const NFL_TEAMS = [
+            "49ers", "Bears", "Bengals", "Bills", "Broncos", "Browns", "Buccaneers", "Cardinals",
+            "Chargers", "Chiefs", "Colts", "Commanders", "Cowboys", "Dolphins", "Eagles", "Falcons",
+            "Giants", "Jaguars", "Jets", "Lions", "Packers", "Panthers", "Patriots", "Raiders",
+            "Rams", "Ravens", "Saints", "Seahawks", "Steelers", "Texans", "Titans", "Vikings"
+        ];
+
+        const NORMALIZED_OFFICIAL = NFL_TEAMS.map(t => t.toLowerCase());
+        let currentAliases = {};
+        let unmatchedKeys = [];
+
+        function cleanKey(name) {
+            return String(name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        }
+
+        async function init() {
+            // 1. Load existing team_aliases.json (if it exists yet)
+            try {
+                const res = await fetch(`./team_aliases.json?t=${Date.now()}`);
+                if (res.ok) currentAliases = await res.json();
+            } catch (e) {}
+
+            // 2. Load current_matchups.json
+            let matchups = [];
+            try {
+                const res = await fetch(`./current_matchups.json?t=${Date.now()}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    matchups = data.matchups || [];
+                }
+            } catch (e) {}
+
+            // 3. Find any team names that aren't official and aren't in currentAliases
+            const allRawTeams = new Set();
+            matchups.forEach(m => {
+                if (m.away) allRawTeams.add(m.away);
+                if (m.home) allRawTeams.add(m.home);
+            });
+
+            const unmatchedEl = document.getElementById('unmatched-list');
+            unmatchedEl.innerHTML = "";
+            unmatchedKeys = [];
+
+            allRawTeams.forEach(rawName => {
+                const key = cleanKey(rawName);
+                const mapped = currentAliases[key] || key;
+                const isMatched = NORMALIZED_OFFICIAL.includes(mapped);
+
+                if (!isMatched && key) {
+                    unmatchedKeys.push(key);
+                    const row = document.createElement('div');
+                    row.className = "flex items-center justify-between gap-2 bg-red-50 border border-red-200 p-3 rounded-lg";
+                    row.innerHTML = `
+                        <span class="font-bold text-red-800 text-sm">"${rawName}"</span>
+                        <select id="map-${key}" class="border border-gray-300 rounded-lg px-2 py-1.5 text-sm bg-white font-semibold">
+                            <option value="">-- Assign NFL Team --</option>
+                            ${NFL_TEAMS.map(t => `<option value="${t.toLowerCase()}">${t}</option>`).join("")}
+                        </select>
+                    `;
+                    unmatchedEl.appendChild(row);
+                }
+            });
+
+            if (unmatchedKeys.length === 0) {
+                unmatchedEl.innerHTML = `<p class="text-sm text-green-700 bg-green-50 border border-green-200 p-3 rounded-lg font-semibold">✓ All teams in this week's sheet matched cleanly!</p>`;
+            }
+
+            renderSavedAliases();
+        }
+
+        function renderSavedAliases() {
+            const savedEl = document.getElementById('saved-list');
+            const entries = Object.entries(currentAliases);
+            if (entries.length === 0) {
+                savedEl.innerHTML = `<p class="text-gray-400 italic">No custom aliases saved yet.</p>`;
+                return;
+            }
+            savedEl.innerHTML = entries.map(([k, v]) => `
+                <div class="flex justify-between items-center bg-gray-50 px-3 py-1.5 rounded border">
+                    <span><strong>${k}</strong> → ${v}</span>
+                    <button onclick="removeAlias('${k}')" class="text-xs text-red-600 hover:underline">Remove</button>
+                </div>
+            `).join("");
+        }
+
+        function removeAlias(key) {
+            delete currentAliases[key];
+            renderSavedAliases();
+        }
+
+        async function saveAliases() {
+            const btn = document.getElementById('save-btn');
+            const msg = document.getElementById('status-msg');
+
+            unmatchedKeys.forEach(key => {
+                const select = document.getElementById(`map-${key}`);
+                if (select && select.value) {
+                    currentAliases[key] = select.value;
+                }
+            });
+
+            btn.disabled = true;
+            btn.innerText = "Saving to GitHub...";
+            msg.classList.add('hidden');
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "update_aliases", aliases: currentAliases })
+                });
+
+                msg.innerText = "Saved! GitHub Pages will update in ~60 seconds.";
+                msg.className = "text-center text-sm font-bold text-green-700 block";
+                btn.innerText = "Saved ✓";
+                setTimeout(() => { btn.disabled = false; btn.innerText = "Save Dictionary to GitHub"; }, 2500);
+                renderSavedAliases();
+            } catch (err) {
+                msg.innerText = "Error: " + err.message;
+                msg.className = "text-center text-sm font-semibold text-red-600 block";
+                btn.disabled = false;
+                btn.innerText = "Save Dictionary to GitHub";
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
