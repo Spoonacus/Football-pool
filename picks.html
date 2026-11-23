@@ -35,7 +35,7 @@
 
             <!-- Matchups List -->
             <div id="matchups-container" class="space-y-3">
-                <p class="text-center text-gray-500 py-6 animate-pulse">Loading matchups from ESPN...</p>
+                <p class="text-center text-gray-500 py-6 animate-pulse">Loading matchups...</p>
             </div>
 
             <!-- Submit Button -->
@@ -55,60 +55,141 @@
         let matchupsData = [];
         let userPicks = {};
 
+        // Default aliases (merged with team_aliases.json from GitHub on load)
+        const ALIASES = {
+            "bucs": "buccaneers",
+            "commanskins": "commanders",
+            "redskins": "commanders",
+            "niners": "49ers",
+            "pats": "patriots",
+            "jags": "jaguars",
+            "cards": "cardinals",
+            "hawks": "seahawks",
+            "fins": "dolphins",
+            "bolts": "chargers"
+        };
+
+        function normalizeTeam(name) {
+            const clean = String(name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+            return ALIASES[clean] || clean;
+        }
+
+        function findEspnTeam(espnEvents, teamLabel) {
+            const target = normalizeTeam(teamLabel);
+            for (const event of espnEvents) {
+                const comp = event.competitions[0];
+                for (const c of comp.competitors) {
+                    const candidates = [
+                        c.team.shortDisplayName,
+                        c.team.name,
+                        c.team.displayName,
+                        c.team.abbreviation
+                    ].map(normalizeTeam);
+                    if (candidates.some(cand => cand && (cand.includes(target) || target.includes(cand)))) {
+                        return { team: c.team, eventDate: event.date };
+                    }
+                }
+            }
+            return null;
+        }
+
         async function loadMatchups() {
+            const container = document.getElementById('matchups-container');
             try {
-                const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard");
-                const data = await res.json();
+                // 0. Load custom team aliases saved via admin.html
+                try {
+                    const aliasRes = await fetch(`./team_aliases.json?t=${Date.now()}`);
+                    if (aliasRes.ok) Object.assign(ALIASES, await aliasRes.json());
+                } catch (e) {}
 
-                currentWeekNum = data.week.number;
-                document.getElementById('week-header').innerText = `NFL Week ${currentWeekNum} Picks`;
+                // 1. Try loading uncle's exact matchup order from GitHub
+                let templateJson = null;
+                try {
+                    const jsonRes = await fetch(`./current_matchups.json?t=${Date.now()}`);
+                    if (jsonRes.ok) {
+                        const parsed = await jsonRes.json();
+                        if (parsed && Array.isArray(parsed.matchups) && parsed.matchups.length > 0) {
+                            templateJson = parsed;
+                        }
+                    }
+                } catch (e) {
+                    console.log("No current_matchups.json found, falling back to ESPN.");
+                }
 
-                const container = document.getElementById('matchups-container');
-                container.innerHTML = '';
+                // 2. Fetch ESPN scoreboard for logos & kickoff times
+                const espnUrl = templateJson
+                    ? `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${templateJson.week}`
+                    : `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard`;
+                const espnRes = await fetch(espnUrl);
+                const espnData = await espnRes.json();
+                const espnEvents = espnData.events || [];
 
-                // Sort games chronologically so the last game is always the Tie Breaker
-                const events = (data.events || []).sort((a, b) => new Date(a.date) - new Date(b.date));
-                
-                events.forEach((event, idx) => {
-                    const comp = event.competitions[0];
-                    const away = comp.competitors.find(c => c.homeAway === 'away');
-                    const home = comp.competitors.find(c => c.homeAway === 'home');
+                let gamesToRender = [];
 
-                    const awayName = away.team.shortDisplayName || away.team.name;
-                    const homeName = home.team.shortDisplayName || home.team.name;
-                    const awayLogo = away.team.logo;
-                    const homeLogo = home.team.logo;
-                    
-                    // Includes Day, Date, and Time (e.g., "Mon, Nov 23, 5:15 PM")
-                    const gameTime = new Date(event.date).toLocaleString([], { 
-                        weekday: 'short', 
-                        month: 'short', 
-                        day: 'numeric', 
-                        hour: 'numeric', 
-                        minute: '2-digit' 
+                if (templateJson) {
+                    currentWeekNum = templateJson.week;
+                    gamesToRender = templateJson.matchups.map(m => {
+                        const awayMatch = findEspnTeam(espnEvents, m.away);
+                        const homeMatch = findEspnTeam(espnEvents, m.home);
+                        const eventDate = (awayMatch && awayMatch.eventDate) || (homeMatch && homeMatch.eventDate) || null;
+                        return {
+                            away: m.away,
+                            home: m.home,
+                            awayLogo: awayMatch ? awayMatch.team.logo : "",
+                            homeLogo: homeMatch ? homeMatch.team.logo : "",
+                            gameTime: eventDate
+                                ? new Date(eventDate).toLocaleString([], {
+                                    weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                                  })
+                                : ""
+                        };
                     });
+                } else {
+                    currentWeekNum = espnData.week.number;
+                    const sortedEvents = espnEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    gamesToRender = sortedEvents.map(event => {
+                        const comp = event.competitions[0];
+                        const away = comp.competitors.find(c => c.homeAway === 'away');
+                        const home = comp.competitors.find(c => c.homeAway === 'home');
+                        return {
+                            away: away.team.shortDisplayName || away.team.name,
+                            home: home.team.shortDisplayName || home.team.name,
+                            awayLogo: away.team.logo,
+                            homeLogo: home.team.logo,
+                            gameTime: new Date(event.date).toLocaleString([], {
+                                weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                            })
+                        };
+                    });
+                }
 
-                    matchupsData.push({ away: awayName, home: homeName });
+                document.getElementById('week-header').innerText = `NFL Week ${currentWeekNum} Picks`;
+                container.innerHTML = '';
+                matchupsData = [];
 
-                    const isLastGame = (idx === events.length - 1);
+                gamesToRender.forEach((game, idx) => {
+                    matchupsData.push({ away: game.away, home: game.home });
+                    const isLastGame = (idx === gamesToRender.length - 1);
+                    const safeAway = game.away.replace(/'/g, "\\'");
+                    const safeHome = game.home.replace(/'/g, "\\'");
 
                     const card = document.createElement('div');
                     card.className = "border border-gray-200 rounded-xl p-3 bg-white shadow-sm";
                     card.innerHTML = `
                         <div class="flex justify-between items-center text-xs text-gray-400 font-semibold mb-2">
                             <span>Game ${idx + 1} ${isLastGame ? '• Tie Breaker Game' : ''}</span>
-                            <span>${gameTime}</span>
+                            <span>${game.gameTime}</span>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <button type="button" id="btn-${idx}-away" onclick="selectTeam(${idx}, '${awayName}', 'away')"
+                            <button type="button" id="btn-${idx}-away" onclick="selectTeam(${idx}, '${safeAway}', 'away')"
                                 class="pick-btn-${idx} flex flex-col items-center justify-center p-3 rounded-lg border-2 border-gray-200 hover:bg-gray-50 transition">
-                                <img src="${awayLogo}" alt="${awayName}" class="w-12 h-12 object-contain mb-1">
-                                <span class="font-bold text-sm text-gray-800">${awayName}</span>
+                                ${game.awayLogo ? `<img src="${game.awayLogo}" alt="${game.away}" class="w-12 h-12 object-contain mb-1">` : ''}
+                                <span class="font-bold text-sm text-gray-800">${game.away}</span>
                             </button>
-                            <button type="button" id="btn-${idx}-home" onclick="selectTeam(${idx}, '${homeName}', 'home')"
+                            <button type="button" id="btn-${idx}-home" onclick="selectTeam(${idx}, '${safeHome}', 'home')"
                                 class="pick-btn-${idx} flex flex-col items-center justify-center p-3 rounded-lg border-2 border-gray-200 hover:bg-gray-50 transition">
-                                <img src="${homeLogo}" alt="${homeName}" class="w-12 h-12 object-contain mb-1">
-                                <span class="font-bold text-sm text-gray-800">${homeName}</span>
+                                ${game.homeLogo ? `<img src="${game.homeLogo}" alt="${game.home}" class="w-12 h-12 object-contain mb-1">` : ''}
+                                <span class="font-bold text-sm text-gray-800">${game.home}</span>
                             </button>
                         </div>
                         ${isLastGame ? `
@@ -127,8 +208,7 @@
 
                 document.getElementById('submit-btn').disabled = false;
             } catch (err) {
-                document.getElementById('matchups-container').innerHTML = 
-                    `<p class="text-center text-red-500 py-4">Failed to load matchups. Please refresh.</p>`;
+                container.innerHTML = `<p class="text-center text-red-500 py-4">Failed to load matchups. Please refresh.</p>`;
             }
         }
 
@@ -170,7 +250,6 @@
             statusMsg.classList.add('hidden');
 
             try {
-                // mode: 'no-cors' bypasses Google Apps Script's redirect block
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
