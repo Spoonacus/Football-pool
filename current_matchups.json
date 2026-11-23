@@ -1,0 +1,65 @@
+{
+  "week": 9,
+  "matchups": [
+    {
+      "away": "Jaguars",
+      "home": "Ravens"
+    },
+    {
+      "away": "Bengals",
+      "home": "Falcons"
+    },
+    {
+      "away": "Broncos",
+      "home": "Panthers"
+    },
+    {
+      "away": "Cowboys",
+      "home": "Colts"
+    },
+    {
+      "away": "Jets",
+      "home": "Chiefs"
+    },
+    {
+      "away": "Lions",
+      "home": "Dolphins"
+    },
+    {
+      "away": "Browns",
+      "home": "Saints"
+    },
+    {
+      "away": "Giants",
+      "home": "Eagles"
+    },
+    {
+      "away": "Rams",
+      "home": "Commanskins"
+    },
+    {
+      "away": "Texns",
+      "home": "Chargers"
+    },
+    {
+      "away": "Packers",
+      "home": "Patriots"
+    },
+    {
+      "away": "Raiders",
+      "home": "49ers"
+    },
+    {
+      "away": "Cardinals",
+      "home": "Seahawks"
+    },
+    {
+      "away": "Bucs",
+      "home": "Bears"
+    },
+    {
+      "away": "Bills",
+      "home": "Vikings"
+    }
+  ]
+}
